@@ -1,0 +1,45 @@
+<ion-content class="bg-gray-100 flex justify-center items-center h-full">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
+    <h1 class="text-2xl font-bold mb-4 text-center text-gray-800">Crear cuenta</h1>
+
+    <form [formGroup]="form" (ngSubmit)="register()" class="space-y-4">
+      <ion-input
+        formControlName="name"
+        label="Nombre"
+        labelPlacement="floating"
+        fill="outline"
+        class="w-full"
+        required
+      ></ion-input>
+
+      <ion-input
+        formControlName="email"
+        label="Correo electrónico"
+        labelPlacement="floating"
+        fill="outline"
+        class="w-full"
+        type="email"
+        required
+      ></ion-input>
+
+      <ion-input
+        formControlName="password"
+        label="Contraseña"
+        labelPlacement="floating"
+        fill="outline"
+        class="w-full"
+        type="password"
+        required
+      ></ion-input>
+
+      <ion-button expand="block" type="submit" [disabled]="form.invalid">
+        Registrarse
+      </ion-button>
+
+      <div class="text-center text-sm text-gray-500 mt-2">
+        ¿Ya tienes cuenta?
+        <a routerLink="/login" class="text-blue-600 hover:underline">Inicia sesión</a>
+      </div>
+    </form>
+  </div>
+</ion-content>

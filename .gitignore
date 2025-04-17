@@ -1,0 +1,53 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+# Angular / Ionic
+.angular/
+www/
+dist/
+build/
+out-tsc/
+temp/
+tmp/
+
+# Capacitor / Cordova
+android/
+ios/
+plugins/
+platforms/
+
+# IDEs y herramientas comunes
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# MacOS / Linux / Windows
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.stackdump
+
+# Environment
+.env
+.env.*.local
+.env.local
+
+# Vite (si usas Ionic + Angular + Vite)
+.vite/
+*.tsbuildinfo
+
+# Optional (si no quieres subir tus builds para stores)
+*.apk
+*.ipa
+
+# Ionic Storage local
+localstorage/
