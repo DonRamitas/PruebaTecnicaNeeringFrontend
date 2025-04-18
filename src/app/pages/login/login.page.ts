@@ -8,7 +8,7 @@ import { addIcons } from 'ionicons';
 import { arrowBack, eyeOff, eye } from 'ionicons/icons';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
 import { App as CapacitorApp } from '@capacitor/app';
-import { AuthService } from 'src/app/services/auth.service';//
+import { AuthService } from 'src/app/services/auth.service';///
 
 @Component({
   selector: 'app-login',
@@ -152,7 +152,7 @@ export class LoginPage implements OnInit, OnDestroy {
           this.loading = false
       },
       error: () => {
-        this.openPopup('Atención', 'Credenciales inválidas'),
+        this.openPopup('Atención', 'Bad'),
           this.loading = false
       }
     });

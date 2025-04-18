@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { ScreenOrientation } from '@awesome-cordova-plugins/screen-orientation/ngx';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +9,13 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 })
 
 export class AppComponent {
-  constructor() {}
+  constructor(private screenOrientation: ScreenOrientation) {}
+
+  ngOnInit() {
+    this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
+  }
 }
+
+
+
+

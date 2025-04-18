@@ -1,14 +1,63 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>products</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- Header personalizado con Tailwind -->
+<div class="w-full bg-white shadow px-4 py-3 sticky top-0 z-50">
+  <div class="flex items-center justify-between">
+    <!-- Botón de menú -->
+    <button class="text-2xl text-black">
+      <ion-icon name="menu"></ion-icon>
+    </button>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">products</ion-title>
-      <a class="cursor-pointer" (click)="logout()">LOG OUT</a>
-    </ion-toolbar>
-  </ion-header>
+    <!-- Título centrado -->
+    <h1 class="text-title text-black font-bold">Productos</h1>
+
+    <!-- Botón "+" -->
+    <button class="text-3xl text-black">
+      <ion-icon name="add"></ion-icon>
+    </button>
+  </div>
+
+  <!-- Barra de búsqueda -->
+  <div class="mt-4 relative">
+    <span class="absolute inset-y-0 left-3 flex items-center text-gray-400 text-xl">
+      <ion-icon name="search"></ion-icon>
+    </span>
+    <input
+      type="text"
+      placeholder="Buscar"
+      class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 !text-black placeholder:text-gray-500"
+    />
+    <span class="absolute inset-y-0 right-3 flex items-center text-gray-400 text-xl">
+      <button class="text-black disabled:text-gray-400">
+      <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+    </span>
+  </div>
+</div>
+
+
+
+<ion-content class="ion-padding">
+  <div class="p-2">
+    <p class="font-bold text-base text-left mb-2 text-black">Productos destacados</p>
+
+    <!-- Grid de productos -->
+    <div class="grid grid-cols-2 gap-4">
+      <div *ngFor="let product of products" class="bg-white rounded-xl shadow p-2">
+        <img [src]="product.image" alt="product image" class="w-full h-32 object-cover rounded-lg mb-2" />
+        <p class="font-bold text-sm text-left text-black">{{ product.name }}</p>
+        <p class="text-xs text-gray-500 text-left text-gray-500">{{ product.category?.name }}</p>
+        <p class="font-bold text-xs text-left text-black">CLP {{ product.price | number:'1.0-0' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout temporal -->
+  <div class="mt-4 text-center">
+    <a (click)="logout()" class="cursor-pointer text-red-600 font-semibold">LOGOUT NOW</a>
+  </div>
+
+  <!-- Infinite scroll -->
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadProducts($event)" *ngIf="hasMore">
+    <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Cargando más productos...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
 </ion-content>

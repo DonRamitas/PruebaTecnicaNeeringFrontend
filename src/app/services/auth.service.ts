@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
-import { tap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { tap, catchError, mapTo } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +38,21 @@ export class AuthService {
           localStorage.setItem('jwt', response.token);
         }
       })
+    );
+  }
+
+  logout(): Observable<boolean> {
+    return this.http.post<any>(`${this.apiUrl}/logout`, {}, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('jwt')}`
+      }
+    }).pipe(
+      tap(() => {
+        // Si el logout fue exitoso, eliminamos el token
+        localStorage.removeItem('jwt');
+      }),
+      mapTo(true), // Retornar true si todo salió bien
+      catchError(() => of(false)) // Retornar false si hubo error
     );
   }
 }
