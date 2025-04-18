@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { IonicModule, ToastController } from '@ionic/angular';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule, NgIf } from '@angular/common';
+import { IonicModule, ToastController, Platform } from '@ionic/angular';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Storage } from '@ionic/storage-angular';
 import { Router } from '@angular/router';
-import { RouterModule } from '@angular/router';
+import { addIcons } from 'ionicons';
+import { arrowBack, eyeOff, eye } from 'ionicons/icons';
+import { PopupComponent } from 'src/app/components/popup/popup.component';
+import { App as CapacitorApp } from '@capacitor/app';
+import { AuthService } from 'src/app/services/auth.service';//
 
 @Component({
   selector: 'app-login',
@@ -14,58 +17,193 @@ import { RouterModule } from '@angular/router';
     CommonModule,
     IonicModule,
     ReactiveFormsModule,
-    HttpClientModule,
-    RouterModule
+    PopupComponent,
+    NgIf
   ],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
+
 })
-export class LoginPage {
-  form: FormGroup;
-  show = false;                     // ← Propiedad para toggle contraseña
-  private apiUrl = 'http://localhost:8000/api/login';
+export class LoginPage implements OnInit, OnDestroy {
+  isRegister = false;
+
+  loginForm: FormGroup;
+  registerForm: FormGroup;
+
+  backButtonSub: any;
+  lastBackPress = 0;
+  timePeriodToExit = 2000;
+
+  showPasswordLogin = false;
+  showPasswordRegister = false;
+
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
     private storage: Storage,
     private toastCtrl: ToastController,
-    private router: Router
+    private router: Router,
+    private platform: Platform,
+    private authService: AuthService
+
   ) {
-    this.form = this.fb.group({
+    this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
+
+    this.registerForm = this.fb.group({
+      name: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s]+$/)]],
+      email: ['', [Validators.required, Validators.email, Validators.pattern(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)]],
+      birthdate: ['', [Validators.required, this.birthdateValidator]],
+      countryCode: ['+56', Validators.required],
+      prefix: ['+56', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{9}$/)]],
+      password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(16)]]
+    });
+
+    addIcons({ arrowBack, eyeOff, eye });
+  }
+
+  ngOnInit() {
+    this.backButtonSub = this.platform.backButton.subscribeWithPriority(10, async () => {
+      if (this.isRegister) {
+        this.isRegister = false;
+      } else {
+        const now = new Date().getTime();
+        if (now - this.lastBackPress < this.timePeriodToExit) {
+          await CapacitorApp.exitApp();
+        } else {
+          this.lastBackPress = now;
+          const toast = await this.toastCtrl.create({
+            message: 'Presiona nuevamente para salir',
+            duration: 1500,
+            position: 'bottom',
+          });
+          await toast.present();
+        }
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.backButtonSub.unsubscribe();
   }
 
   async ionViewDidEnter() {
     await this.storage.create();
   }
 
+  ionViewWillEnter() {
+    this.registerForm.reset({
+      prefix: '+56',
+      countryCode: '+56'
+    });
+    this.loginForm.reset({
+      prefix: '+56',
+      countryCode: '+56'
+    });
+  }
+
   async login() {
-    if (this.form.invalid) {
-      const t = await this.toastCtrl.create({
-        message: 'Completa todos los campos.',
-        duration: 2000,
-        color: 'warning'
-      });
-      t.present();
+    if (this.loginForm.invalid) {
+      this.openPopup('Atención', 'Ingresa tus credenciales para acceder');
       return;
     }
 
-    this.http.post<{ token: string }>(this.apiUrl, this.form.value).subscribe({
-      next: async ({ token }) => {
-        await this.storage.set('token', token);
-        this.router.navigate(['/home']);
+    this.loading = true;
+
+    this.authService.login(this.loginForm.value).subscribe({
+      next: () => {
+        this.router.navigate(['/products']),
+          this.loading = false
       },
-      error: async () => {
-        const t = await this.toastCtrl.create({
-          message: 'Credenciales inválidas.',
-          duration: 2000,
-          color: 'danger'
-        });
-        t.present();
+      error: () => {
+        this.openPopup('Atención', 'Credenciales inválidas'),
+          this.loading = false
+      }
+    });
+
+  }
+
+  async register() {
+    if (this.registerForm.invalid) {
+      this.openPopup('Atención', 'Completa correctamente todos los campos');
+      return;
+    }
+
+    this.loading = true;
+
+    const { name, email, birthdate, prefix, phone, password } = this.registerForm.value;
+    const fullPhone = `${prefix}${phone}`;
+
+    const body = {
+      name,
+      email,
+      birthdate,
+      phone: fullPhone,
+      password
+    };
+
+    this.authService.register(body).subscribe({
+      next: () => {
+        this.router.navigate(['/products']),
+          this.loading = false
+      },
+      error: () => {
+        this.openPopup('Atención', 'Credenciales inválidas'),
+          this.loading = false
       }
     });
   }
+
+  setRegisterOn() {
+    this.isRegister = true;
+  }
+
+  setRegisterOff() {
+    this.isRegister = false;
+  }
+
+  showPopup = false;
+  popupTitle = '';
+  popupDescription = '';
+  popupButtonText = '';
+  popupHeaderColor = '';
+
+  openPopup(
+    title: string = 'Atención',
+    description: string = 'Algo pasó',
+    buttonText: string = 'OK',
+    headerColor: string = 'bg-fuchsia-800'
+  ) {
+    // Oculta primero por si ya estaba visible
+    this.showPopup = false;
+
+    // Usa un pequeño timeout para esperar al siguiente ciclo de render
+    setTimeout(() => {
+      this.popupTitle = title;
+      this.popupDescription = description;
+      this.popupButtonText = buttonText;
+      this.popupHeaderColor = headerColor;
+      this.showPopup = true;
+    }, 0);
+  }
+
+  birthdateValidator(control: AbstractControl): ValidationErrors | null {
+    const inputDate = new Date(control.value);
+    const today = new Date();
+    const age = today.getFullYear() - inputDate.getFullYear();
+
+    const isFuture = inputDate > today;
+    const isTooOld = age > 122;
+
+    if (isFuture || isTooOld) {
+      return { invalidDate: true };
+    }
+
+    return null;
+  }
+
 }

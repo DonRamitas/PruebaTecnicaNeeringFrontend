@@ -1,18 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
-import { Router } from '@angular/router';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private api = 'http://TU_IP_O_LOCALHOST/api'; // reemplaza por tu IP o localhost:8000
+  private apiUrl = 'http://localhost:8000/api'; // reemplaza por tu IP o localhost:8000
 
   constructor(
     private http: HttpClient,
-    private storage: Storage,
-    private router: Router
+    private storage: Storage
   ) {
     this.init();
   }
@@ -22,28 +21,22 @@ export class AuthService {
   }
 
   login(credentials: any) {
-    return this.http.post(`${this.api}/login`, credentials);
+    return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
+      tap((response) => {
+        if (response.token) {
+          localStorage.setItem('jwt', response.token);
+        }
+      })
+    );
   }
 
   register(data: any) {
-    return this.http.post(`${this.api}/register`, data);
-  }
-
-  async saveToken(token: string) {
-    await this.storage.set('token', token);
-  }
-
-  async getToken() {
-    return await this.storage.get('token');
-  }
-
-  async logout() {
-    await this.storage.remove('token');
-    this.router.navigate(['/login']);
-  }
-
-  async isLoggedIn(): Promise<boolean> {
-    const token = await this.getToken();
-    return !!token;
+    return this.http.post<any>(`${this.apiUrl}/register`, data).pipe(
+      tap((response) => {
+        if (response.token) {
+          localStorage.setItem('jwt', response.token);
+        }
+      })
+    );
   }
 }
