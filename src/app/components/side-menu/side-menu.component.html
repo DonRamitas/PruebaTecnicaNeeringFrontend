@@ -1,3 +1,30 @@
-<p>
-  side-menu works!
-</p>
+<!-- Fondo oscuro -->
+<div *ngIf="isOpen" class="fixed inset-0 bg-black/40 z-40" (click)="closeMenu()"></div>
+
+<!-- Side menu -->
+<div *ngIf="isOpen"
+     class="sidemenu-panel fixed top-0 left-0 h-full w-[75vw] bg-white z-50 overflow-y-auto"
+     [class.-translate-x-full]="!isOpen"
+     [class.translate-x-0]="isOpen">
+
+  <!-- Header -->
+  <div class="h-[20%] flex flex-col justify-center items-center p-4 bg-gradient-to-t from-[#C23F86] via-[#803683] to-[#2D2A70]">
+    <img [src]="userImage" class="w-25 h-25 rounded-full border border-gray-300 mt-2" />
+    <h5 class="text-lg font-semibold text-white">{{ userName }}</h5>
+  </div>
+
+  <!-- Opciones -->
+  <div class="p-4 space-y-4 text-gray-700 text-base ml-5 mt-5">
+    <div class="flex items-center gap-4 pb-2" (click)="letsGoProducts()"><ion-icon name="search-outline" class="text-2xl"></ion-icon> Productos</div>
+    <div class="flex items-center gap-4 pb-2"><ion-icon name="notifications-outline" class="text-2xl"></ion-icon> Notificaciones</div>
+    <div class="flex items-center gap-4 pb-2"><ion-icon name="heart-outline" class="text-2xl"></ion-icon> Favoritos</div>
+    <div class="flex items-center gap-4 pb-2"><ion-icon name="pricetags-outline" class="text-2xl"></ion-icon> Ofertas</div>
+    <div class="flex items-center gap-4 pb-2"><ion-icon name="person-outline" class="text-2xl"></ion-icon> Mi cuenta</div>
+    <hr class="my-4 !border-t border-gray-400 mx-4" />
+    <div class="flex items-center gap-4 pb-2"><ion-icon name="cart-outline" class="text-2xl"></ion-icon> Vender</div>
+    <div class="flex items-center gap-4 pb-2" (click)="letsGoCategories()"><ion-icon name="albums-outline" class="text-2xl"></ion-icon> Categorías</div>
+    <div class="flex items-center gap-4 pb-2"><ion-icon name="storefront-outline" class="text-2xl"></ion-icon> Tiendas oficiales</div>
+    <div class="flex items-center gap-4 pb-2"><ion-icon name="help-circle-outline" class="text-2xl"></ion-icon> Ayuda</div>
+    <div class="flex items-center gap-4 pb-2 text-red-500" (click)="logoutSession()"><ion-icon name="log-out-outline" class="text-2xl"></ion-icon> Cerrar sesión</div>
+  </div>
+</div>

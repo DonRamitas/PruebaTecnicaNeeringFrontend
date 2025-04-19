@@ -1,5 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Category } from '../models/category.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -10,7 +11,15 @@ export class CategoryService {
 
   constructor(private http: HttpClient) {}
 
-  getCategories(): Observable<{ id: number, name: string }[]> {
-    return this.http.get<{ id: number, name: string }[]>(`${this.baseUrl}/categories`);
+  searchCategories(page: number, search: string): Observable<{ data: Category[], next_page_url: string | null }> {
+    let params = new HttpParams().set('page', page);
+  
+    if (search) params = params.set('search', search);
+  
+    return this.http.get<{ data: Category[], next_page_url: string | null }>(`${this.baseUrl}/categories`, { params });
   }
-}
+
+  getAllCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.baseUrl}/categories/all`);
+  }
+}//

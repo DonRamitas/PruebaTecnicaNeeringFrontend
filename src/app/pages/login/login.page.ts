@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { IonicModule, ToastController, Platform } from '@ionic/angular';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Storage } from '@ionic/storage-angular';
@@ -8,7 +8,8 @@ import { addIcons } from 'ionicons';
 import { arrowBack, eyeOff, eye } from 'ionicons/icons';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
 import { App as CapacitorApp } from '@capacitor/app';
-import { AuthService } from 'src/app/services/auth.service';///
+import { AuthService } from 'src/app/services/auth.service';
+import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +19,7 @@ import { AuthService } from 'src/app/services/auth.service';///
     IonicModule,
     ReactiveFormsModule,
     PopupComponent,
-    NgIf
+    LoadingOverlayComponent
   ],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],

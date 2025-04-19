@@ -1,7 +1,7 @@
 <!-- Header -->
 <div class="w-full bg-white shadow px-4 py-3 sticky top-0 z-50">
   <div class="flex items-center justify-between">
-    <button class="text-2xl text-black">
+    <button (click)="openSideMenu()" class="text-2xl text-black">
       <ion-icon name="menu"></ion-icon>
     </button>
     <h1 class="text-title text-black font-bold">Productos</h1>
@@ -15,7 +15,7 @@
     <!-- Botón de filtro -->
 
     <span class="absolute inset-y-0 left-1 flex items-center ml-2">
-      <ion-icon name="search" class="text-xl text-gray-400"></ion-icon>
+      <ion-icon name="search" class="text-xl text-purple-500"></ion-icon>
     </span>
 
     <span class="absolute inset-y-0 right-10 flex items-center ml-2">
@@ -49,7 +49,7 @@
       placeholder="Buscar"
       (keyup.enter)="onSearchClick()"
       enterkeyhint="search"
-      class="w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 !text-black placeholder:text-gray-500"
+      class="w-full pl-10 pr-10 py-2 rounded-full border-purple-500 border-[3px] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 !text-black placeholder:text-gray-500"
     />
 
     <!-- Botón de búsqueda -->
@@ -67,7 +67,6 @@
 <ion-content class="ion-padding">
   <div>
     <p *ngIf="!isSearch" class="font-bold text-base text-left mb-2 text-black">Productos destacados</p>
-    <p *ngIf="loading==false && products.length==0" class="text-center font-bold text-base mb-2 text-gray-500">No hay resultados</p>
 
     <!-- Grid de productos -->
     <div class="grid grid-cols-2 gap-4">
@@ -89,9 +88,25 @@
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 
-  <!-- Logout temporal -->
-  <div class="mt-4 text-center">
-    <a (click)="logout()" class="cursor-pointer !text-red-600 font-semibold">LOG OUT</a>
+  <div class="flex items-center justify-center h-[90%] w-full bg-white">
+    <p *ngIf="!loading && products.length === 0"
+       class="text-center font-bold text-base text-gray-500">
+      No hay resultados
+    </p>
   </div>
 
 </ion-content>
+
+<!-- Side Menu -->
+<app-sidemenu
+  [isOpen]="isSideMenuOpen"
+  [userName]="'Axel Dev'"
+  [userImage]="'https://i.pravatar.cc/150?img=3'"
+  (goProducts)="closeSideMenu()"
+  (logout)="logout()"
+  (goCategories)="goCategories()"
+  (closeSidemenu)="closeSideMenu()"
+  class="z-200"
+></app-sidemenu>
+
+<app-loading-overlay [isLoading]="logoutLoading" class="z-300"></app-loading-overlay>

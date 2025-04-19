@@ -11,12 +11,7 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getProducts(page: number): Observable<{ data: Product[], next_page_url: string | null }> {
-    const params = new HttpParams().set('page', page);
-    return this.http.get<{ data: Product[], next_page_url: string | null }>(`${this.baseUrl}/products`, { params });
-  }
-
-  searchProducts(page: number, search: string, categoryId: string | null): Observable<{ data: Product[], next_page_url: string | null }> {
+  searchProducts(page: number, search: string, categoryId: number | null): Observable<{ data: Product[], next_page_url: string | null }> {
     let params = new HttpParams().set('page', page);
   
     if (search) params = params.set('search', search);

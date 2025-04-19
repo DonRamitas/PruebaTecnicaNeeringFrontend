@@ -1,10 +1,10 @@
 import { Component, OnInit} from '@angular/core';
 import { ProductService } from 'src/app/services/product.service';
 import { Product } from 'src/app/models/product.model';
+import { Category } from 'src/app/models/category.model';
 import { IonicModule } from '@ionic/angular';
-import { NgFor, NgIf } from '@angular/common';
 import { addIcons } from 'ionicons';
-import { add, menu, search, chevronForwardOutline, funnel, close } from 'ionicons/icons';
+import { add, menu, search, chevronForwardOutline, funnel, close} from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -12,11 +12,13 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // Agrega si no está
 import { CategoryService } from 'src/app/services/category.service';
 import { ElementRef, HostListener, ViewChild } from '@angular/core';
+import { SidemenuComponent } from 'src/app/components/side-menu/side-menu.component';
+import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule, FormsModule],
+  imports: [IonicModule, CommonModule, RouterModule, FormsModule, SidemenuComponent, LoadingOverlayComponent],
   templateUrl: './products.page.html',
   styleUrls: ['./products.page.scss'],
 })
@@ -25,15 +27,16 @@ export class ProductsPage implements OnInit {
   @ViewChild('dropdownRef') dropdownRef!: ElementRef;
   @ViewChild('filterButtonRef') filterButtonRef!: ElementRef;
   products: Product[] = [];
-  categories: any[] = [];
+  categories: Category[] = [];
   currentPage = 1;
   hasMore = true;
   loading = false;
   searchTerm: string = '';
-  selectedCategory: string | null = null;
+  selectedCategory: number | null = null;
   isFilterActive: boolean = false;
   showDropdown: boolean = false;
   isSearch: boolean = false;
+  logoutLoading = false;
 
   constructor(
     private productService: ProductService,
@@ -55,8 +58,8 @@ export class ProductsPage implements OnInit {
   }
 
   loadCategories() {
-    this.categoryService.getCategories().subscribe((res) => {
-      this.categories = [{ id: null, name: 'Todas las categorías' }, ...res];
+    this.categoryService.getAllCategories().subscribe((res) => {
+      this.categories = [{ id: 0, name: 'Todas las categorías' }, ...res];
     });
   }
 
@@ -91,12 +94,6 @@ export class ProductsPage implements OnInit {
     this.loadProducts();
   }
 
-  onEnterPress(event: KeyboardEvent) {
-    if (this.searchTerm.trim()) {
-      this.resetAndSearch();
-    }
-  }
-
   onSearchClick() {
     this.resetAndSearch();
   }
@@ -106,20 +103,23 @@ export class ProductsPage implements OnInit {
     this.resetAndSearch(); // Esto ya se encarga de cargar productos con search vacío y categoría activa
   }
 
-  onCategorySelect(categoryId: string | null) {
+  onCategorySelect(categoryId: number | null) {
     this.selectedCategory = categoryId;
     this.isFilterActive = !!categoryId;
     this.resetAndSearch();
   }
 
   logout(){
+    this.logoutLoading =true;
     this.authService.logout().subscribe(success => {
       if (success) {
         this.searchTerm = '';
         this.selectedCategory = null;
         this.isFilterActive = false;
+        this.logoutLoading = false;
         this.router.navigateByUrl('/login', { replaceUrl: true });
       } else {
+        this.logoutLoading = false;
         console.error('Error al cerrar sesión');
       }
     });
@@ -138,5 +138,20 @@ export class ProductsPage implements OnInit {
       // Solo cerrar el dropdown, sin afectar el clic
       this.showDropdown = false;
     }
+  }
+
+  isSideMenuOpen = false;
+
+  openSideMenu() {
+    this.isSideMenuOpen = true;
+    
+  }
+
+  closeSideMenu() {
+    this.isSideMenuOpen = false;
+  }
+
+  goCategories(){
+    this.router.navigateByUrl('/categories', { replaceUrl: true });
   }
 }

@@ -38,7 +38,7 @@
             <div
               class="flex items-center border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-purple-400">
               <input [type]="showPasswordLogin ? 'text' : 'password'" formControlName="password" placeholder="••••••••"
-                class="flex-1 px-4 py-2 focus:outline-none  !text-black placeholder-gray-400" />
+                class="flex-1 min-w-0 px-4 py-2 focus:outline-none  !text-black placeholder-gray-400" />
               <button type="button" (click)="showPasswordLogin = !showPasswordLogin" class="relative right-1">
                 <ion-icon [name]="showPasswordLogin ? 'eye-off' : 'eye'" class="text-gray-400 text-xl"></ion-icon>
               </button>
@@ -166,7 +166,7 @@
             <div
               class="flex items-center border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-purple-400">
               <input [type]="showPasswordRegister ? 'text' : 'password'" formControlName="password" placeholder="••••••••"
-                class="flex-1 px-4 py-2 focus:outline-none !text-black placeholder-gray-400" />
+                class="min-w-0 flex-1 px-4 py-2 focus:outline-none !text-black placeholder-gray-400" />
               <button type="button" (click)="showPasswordRegister = !showPasswordRegister" class="relative right-1">
                 <ion-icon [name]="showPasswordRegister ? 'eye-off' : 'eye'" class="text-gray-400 text-xl"></ion-icon>
               </button>
@@ -202,3 +202,5 @@
   <app-popup [title]="popupTitle" [description]="popupDescription" [buttonText]="popupButtonText"
     [headerColor]="popupHeaderColor" [visible]="showPopup"></app-popup>
 </ion-content>
+
+<app-loading-overlay [isLoading]="loading" class="z-300"></app-loading-overlay>
