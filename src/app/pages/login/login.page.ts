@@ -116,8 +116,8 @@ export class LoginPage implements OnInit, OnDestroy {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
-        this.router.navigate(['/products']),
           this.loading = false
+          this.router.navigateByUrl('/products', { replaceUrl: true })
       },
       error: () => {
         this.openPopup('Atención', 'Credenciales inválidas'),
@@ -148,8 +148,9 @@ export class LoginPage implements OnInit, OnDestroy {
 
     this.authService.register(body).subscribe({
       next: () => {
-        this.router.navigate(['/products']),
-          this.loading = false
+        
+          this.loading = false,
+          this.router.navigateByUrl('/products', { replaceUrl: true })
       },
       error: () => {
         this.openPopup('Atención', 'Bad'),

@@ -1,33 +1,61 @@
-<!-- Header personalizado con Tailwind -->
+<!-- Header -->
 <div class="w-full bg-white shadow px-4 py-3 sticky top-0 z-50">
   <div class="flex items-center justify-between">
-    <!-- Botón de menú -->
     <button class="text-2xl text-black">
       <ion-icon name="menu"></ion-icon>
     </button>
-
-    <!-- Título centrado -->
     <h1 class="text-title text-black font-bold">Productos</h1>
-
-    <!-- Botón "+" -->
     <button class="text-3xl text-black">
       <ion-icon name="add"></ion-icon>
     </button>
   </div>
 
-  <!-- Barra de búsqueda -->
-  <div class="mt-4 relative">
-    <span class="absolute inset-y-0 left-3 flex items-center text-gray-400 text-xl">
-      <ion-icon name="search"></ion-icon>
+  <!-- Barra de búsqueda con filtro -->
+  <div class="mt-4 relative z-50">
+    <!-- Botón de filtro -->
+
+    <span class="absolute inset-y-0 left-1 flex items-center ml-2">
+      <ion-icon name="search" class="text-xl text-gray-400"></ion-icon>
     </span>
+
+    <span class="absolute inset-y-0 right-10 flex items-center ml-2">
+      <button #filterButtonRef (click)="showDropdown = !showDropdown">
+        <ion-icon name="funnel" [class.!text-blue-500]="isFilterActive" class="text-xl text-gray-400"></ion-icon>
+      </button>
+    </span>
+
+    <!-- Botón de limpiar búsqueda -->
+    <span *ngIf="searchTerm.trim() !== ''" class="absolute inset-y-0 right-17 flex items-center text-lg">
+      <button class="text-gray-400" (click)="clearSearch()">
+        <ion-icon name="close"></ion-icon>
+      </button>
+    </span>
+
+    <!-- Dropdown -->
+    <div *ngIf="showDropdown"
+    class="absolute left-0 mt-10 bg-white border border-gray-300 rounded shadow w-full z-50 text-black max-h-[1000px] overflow-y-auto">
+    <button #dropdownRef *ngFor="let cat of categories"
+        class="block w-full text-center px-4 py-4 hover:bg-gray-100 text-sm min-h-[25px]"
+        [ngClass]="{ 'bg-gray-300': selectedCategory === cat.id }"
+        (click)="onCategorySelect(cat.id); showDropdown=false">
+    {{ cat.name }}
+    </button>
+    </div>
+
+    <!-- Input -->
     <input
       type="text"
+      [(ngModel)]="searchTerm"
       placeholder="Buscar"
-      class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 !text-black placeholder:text-gray-500"
+      (keyup.enter)="onSearchClick()"
+      enterkeyhint="search"
+      class="w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 !text-black placeholder:text-gray-500"
     />
-    <span class="absolute inset-y-0 right-3 flex items-center text-gray-400 text-xl">
-      <button class="text-black disabled:text-gray-400">
-      <ion-icon name="chevron-forward-outline"></ion-icon>
+
+    <!-- Botón de búsqueda -->
+    <span class="absolute inset-y-0 right-3 flex items-center text-xl">
+      <button (click)="onSearchClick()" class="text-black">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
       </button>
     </span>
   </div>
@@ -35,29 +63,35 @@
 
 
 
+
 <ion-content class="ion-padding">
-  <div class="p-2">
-    <p class="font-bold text-base text-left mb-2 text-black">Productos destacados</p>
+  <div>
+    <p *ngIf="!isSearch" class="font-bold text-base text-left mb-2 text-black">Productos destacados</p>
+    <p *ngIf="loading==false && products.length==0" class="text-center font-bold text-base mb-2 text-gray-500">No hay resultados</p>
 
     <!-- Grid de productos -->
     <div class="grid grid-cols-2 gap-4">
       <div *ngFor="let product of products" class="bg-white rounded-xl shadow p-2">
         <img [src]="product.image" alt="product image" class="w-full h-32 object-cover rounded-lg mb-2" />
         <p class="font-bold text-sm text-left text-black">{{ product.name }}</p>
-        <p class="text-xs text-gray-500 text-left text-gray-500">{{ product.category?.name }}</p>
+        <p class="text-xs text-gray-500 text-left text-gray-500">{{ product.category.name }}</p>
         <p class="font-bold text-xs text-left text-black">CLP {{ product.price | number:'1.0-0' }}</p>
       </div>
     </div>
   </div>
 
-  <!-- Logout temporal -->
-  <div class="mt-4 text-center">
-    <a (click)="logout()" class="cursor-pointer text-red-600 font-semibold">LOGOUT NOW</a>
-  </div>
-
   <!-- Infinite scroll -->
-  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadProducts($event)" *ngIf="hasMore">
-    <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Cargando más productos...">
+  <ion-infinite-scroll class="text-black" threshold="100px" (ionInfinite)="loadProducts($event)" *ngIf="hasMore">
+    <ion-infinite-scroll-content
+      loadingSpinner="crescent"
+      class="infinite-scroll-custom"
+    >
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
+
+  <!-- Logout temporal -->
+  <div class="mt-4 text-center">
+    <a (click)="logout()" class="cursor-pointer !text-red-600 font-semibold">LOG OUT</a>
+  </div>
+
 </ion-content>

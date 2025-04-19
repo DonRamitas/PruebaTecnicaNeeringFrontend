@@ -15,4 +15,14 @@ export class ProductService {
     const params = new HttpParams().set('page', page);
     return this.http.get<{ data: Product[], next_page_url: string | null }>(`${this.baseUrl}/products`, { params });
   }
+
+  searchProducts(page: number, search: string, categoryId: string | null): Observable<{ data: Product[], next_page_url: string | null }> {
+    let params = new HttpParams().set('page', page);
+  
+    if (search) params = params.set('search', search);
+    if (categoryId) params = params.set('category_id', categoryId);
+  
+    return this.http.get<{ data: Product[], next_page_url: string | null }>(`${this.baseUrl}/products`, { params });
+  }
+  
 }

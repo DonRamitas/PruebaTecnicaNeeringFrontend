@@ -3,4 +3,19 @@
       --background: #ffffff !important;
     }
   }
+
+::ng-deep .infinite-scroll-custom {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 16px 0;
+
+  ion-spinner {
+    --color: black !important;
+    width: 40px;
+    height: 40px;
+  }
+}
+  
   
