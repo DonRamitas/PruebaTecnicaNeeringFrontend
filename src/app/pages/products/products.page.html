@@ -35,7 +35,7 @@
     <div *ngIf="showDropdown"
     class="absolute left-0 mt-10 bg-white border border-gray-300 rounded shadow w-full z-50 text-black max-h-[1000px] overflow-y-auto">
     <button #dropdownRef *ngFor="let cat of categories"
-        class="block w-full text-center px-4 py-4 hover:bg-gray-100 text-sm min-h-[25px]"
+        class="block w-full text-center !px-10 !my-2 hover:bg-gray-100 text-sm min-h-[30px] !line-clamp-2"
         [ngClass]="{ 'bg-gray-300': selectedCategory === cat.id }"
         (click)="onCategorySelect(cat.id); showDropdown=false">
     {{ cat.name }}
@@ -70,17 +70,20 @@
 
     <!-- Grid de productos -->
     <div class="grid grid-cols-2 gap-4">
-      <div *ngFor="let product of products" class="bg-white rounded-xl shadow p-2">
-        <img [src]="product.image" alt="product image" class="w-full h-32 object-cover rounded-lg mb-2" />
-        <p class="font-bold text-sm text-left text-black">{{ product.name }}</p>
-        <p class="text-xs text-gray-500 text-left text-gray-500">{{ product.category ? product.category.name : 'Sin categoría' }}</p>
+      
+      <div *ngFor="let product of products"
+      class="bg-white rounded-xl shadow p-2" 
+      (click)="goToDetail(product.id)">
+        <img [src]="product.image ? storagePrefix + product.image : 'assets/no-image.svg'" alt="product image" class="w-full h-32 object-cover rounded-lg mb-2" />
+        <p class="font-bold text-sm text-left text-black line-clamp-2">{{ product.name }}</p>
+        <p class="text-xs text-gray-500 text-left text-gray-500 line-clamp-2 mb-2">{{ product.category ? product.category.name : 'Sin categoría' }}</p>
         <p class="font-bold text-xs text-left text-black">CLP {{ product.price | number:'1.0-0' }}</p>
       </div>
     </div>
   </div>
 
   <!-- Infinite scroll -->
-  <ion-infinite-scroll class="text-black" threshold="100px" (ionInfinite)="loadProducts($event)" *ngIf="hasMore">
+  <ion-infinite-scroll #ionScroll class="text-black" threshold="100px" (ionInfinite)="loadProducts($event)" *ngIf="hasMore">
     <ion-infinite-scroll-content
       loadingSpinner="crescent"
       class="infinite-scroll-custom"

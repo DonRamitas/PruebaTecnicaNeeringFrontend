@@ -7,10 +7,11 @@
 
     <!-- Content -->
     <div class="p-4 text-center text-gray-800 text-medium">
-      <p class="mb-4">{{ description }}</p>
-      <button (click)="close()" class="!rounded-lg bg-fuchsia-900 text-white py-3 h-12 !px-10 text-medium">
-        {{ buttonText }}
-      </button>
+      <p class="mb-4 whitespace-pre-line">{{ description }}</p>
+        <button (click)="handleClick()" class="!rounded-lg bg-fuchsia-900 text-white py-3 h-12 !px-10 text-medium">
+          {{ buttonText }}
+        </button>
+      
     </div>
   </div>
 </div>

@@ -56,7 +56,7 @@ export class ProductAddPage {
         Validators.min(1)
       ]],
       category_id: [null], // se asume que 'null' es "sin categoría"
-      description: ['', [Validators.maxLength(300)]],
+      description: [null, [Validators.maxLength(300)]],
       image: [null, [this.validateImage]]
     });
 
@@ -69,27 +69,41 @@ export class ProductAddPage {
 
   async addProduct() {
     if (this.productAddForm.invalid) {
-      this.openPopup('Atención', 'Error al añadir producto');
+      this.openErrorPopup('Atención', 'Formulario inválido');
       return;
     }
-
+  
     this.loading = true;
+  
+    const formValues = this.productAddForm.value;
+  
+    const formData = new FormData();
+    formData.append('name', formValues.name);
+    formData.append('price', formValues.price);
 
-    console.log(this.productAddForm.value);
+    if(formValues.description!=null){
+      formData.append('description', formValues.description);
+    }
+    
 
-    this.productService.addProduct(this.productAddForm.value).subscribe({
-      next: () => {
-          this.loading = false
-          console.log('subidox');
-          //this.router.navigateByUrl('/products', { replaceUrl: true })
+    if(this.selectedCategory!=null){
+      formData.append('category_id', this.selectedCategory.toString() );
+    }
+  
+    if (this.selectedFile) {
+      formData.append('image', this.selectedFile);
+    }
+  
+    this.productService.addProduct(formData).subscribe({
+      next: (response) => {
+        this.loading = false;
+        this.openSuccessPopup(response.id,'Éxito', 'El producto se añadió satisfactoriamente.');
       },
       error: () => {
-        this.openPopup('Atención', 'Credenciales inválidas'),
-        console.log('subidox');
-          this.loading = false
+        this.openErrorPopup('Error', 'Error al subir producto');
+        this.loading = false;
       }
     });
-
   }
 
   showPopup = false;
@@ -98,24 +112,51 @@ export class ProductAddPage {
   popupButtonText = '';
   popupHeaderColor = '';
 
-  openPopup(
+  // Define el tipo de acción que quieres ejecutar
+  popupAction: () => void = () => { this.showPopup = false; }; // por defecto solo se cierra
+
+  // Método para abrir un popup simple
+  openErrorPopup(
     title: string = 'Atención',
     description: string = 'Algo pasó',
     buttonText: string = 'OK',
     headerColor: string = 'bg-fuchsia-800'
   ) {
-    // Oculta primero por si ya estaba visible
-    this.showPopup = false;
-
-    // Usa un pequeño timeout para esperar al siguiente ciclo de render
-    setTimeout(() => {
-      this.popupTitle = title;
-      this.popupDescription = description;
-      this.popupButtonText = buttonText;
-      this.popupHeaderColor = headerColor;
-      this.showPopup = true;
-    }, 0);
+    this.popupTitle = title;
+    this.popupDescription = description;
+    this.popupButtonText = buttonText;
+    this.popupHeaderColor = headerColor;
+    this.popupAction = () => {
+      this.showPopup = false;
+    };
+    this.showPopup = true;
   }
+
+  // Método para abrir un popup que redirige
+  openSuccessPopup(
+    idProduct: number | null = null,
+    title: string = 'Atención',
+    description: string = 'Serás redirigido',
+    buttonText: string = 'OK',
+    headerColor: string = 'bg-fuchsia-800'
+  ) {
+    this.popupTitle = title;
+    this.popupDescription = description;
+    this.popupButtonText = buttonText;
+    this.popupHeaderColor = headerColor;
+    console.log("yendose1");
+    this.popupAction = () => {
+      this.showPopup = false;
+      console.log("yendose2");
+      this.router.navigateByUrl('/product-detail/'+idProduct,{replaceUrl: true});
+    };
+    this.showPopup = true;
+  }
+
+// Acción al presionar botón del popup
+handlePopupAction() {
+  this.popupAction(); // Ejecuta lo que hayas definido
+}
 
   validateImage(control: AbstractControl): { [key: string]: any } | null {
     const file = control.value;
@@ -181,10 +222,6 @@ export class ProductAddPage {
     this.selectedCategory = id;
     this.selectedCategoryName =
       this.categories.find(c => c.id === id)?.name || 'Sin categoría';
-    this.productAddForm.patchValue({
-      category_id: id
-    });
-    console.log(this.productAddForm.get('category_id'));
     this.showDropdown = false;
     
   }
@@ -202,5 +239,40 @@ export class ProductAddPage {
   toggleDropdown() {
     this.showDropdown = !this.showDropdown;
   }
+
+  selectedFile: File | null = null;
+
+  imagePreview: string | ArrayBuffer | null = null;
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      // Validaciones
+      if (file.size > 10 * 1024 * 1024) {
+        this.openErrorPopup('Atención', 'La imagen no puede pesar más de 10MB.');
+        return;
+      }
+
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        this.openErrorPopup('Atención', 'Formato de imagen inválido.\nSolo JPG, PNG o WEBP.');
+        return;
+      }
+
+      this.selectedFile = file;
+      this.productAddForm.get('image')?.setValue(file);
+
+      // Generar preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+
 
 }

@@ -1,13 +1,61 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>product-detail</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- Header -->
+<div class="w-full bg-gray-300 shadow px-4 py-4 sticky top-0 z-50 h-20">
+  <div class="relative flex items-center justify-center">
+    <!-- Botón a la izquierda -->
+    <button (click)="goBack()" class="absolute left-0 text-lg text-black">
+      <ion-icon name="arrow-back"></ion-icon>
+    </button>
+
+    <!-- Título centrado -->
+    <h5 class="text-minititle text-black font-bold text-center">
+      Detalle del producto
+    </h5>
+
+    <button class="absolute right-12 text-lg text-black">
+      <ion-icon name="create-outline"></ion-icon>
+    </button>
+
+    <button class="absolute right-2 text-lg text-red-500">
+      <ion-icon name="trash-outline"></ion-icon>
+    </button>
+  </div>
+</div>
+
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">product-detail</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <!-- Imagen preview -->
+  <div *ngIf="product" class="w-full aspect-square overflow-hidden rounded-lg">
+    <img
+      [src]="product.image ? storagePrefix + product.image : 'assets/no-image.svg'"
+      alt="Preview"
+      class="w-full h-full object-cover object-center"
+    />
+  </div>
+  
+
+  <div class="relative bg-white px-6 py-6" *ngIf="product">
+    <div>
+      <label class="block text-xs font-medium text-gray-700 mb-1">Nombre del producto</label>
+      <p class="text-black mb-5 text-product">{{ product.name }}</p>
+    </div>
+
+    <div>
+      <label class="block text-xs font-medium text-gray-700 mb-1">Precio</label>
+      <p class="text-black mb-5">CLP {{ product.price | number:'1.0-0' }}</p>
+    </div>
+
+    <div>
+      <label class="block text-xs font-medium text-gray-700 mb-1">Categoría</label>
+      <p class="text-black mb-5">{{ product.category?.name || 'Sin categoría' }}</p>
+    </div>
+
+    <div>
+      <label class="block text-xs font-medium text-gray-700 mb-1">Descripción</label>
+      <p class="text-black mb-5 min-h-0">{{ product.description || 'Sin descripción' }}</p>
+    </div>
+  </div>
+
 </ion-content>
+
+<app-popup [title]="popupTitle" [description]="popupDescription" [buttonText]="popupButtonText"
+    [headerColor]="popupHeaderColor" [visible]="showPopup"></app-popup>

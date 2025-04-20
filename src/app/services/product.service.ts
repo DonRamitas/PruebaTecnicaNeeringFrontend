@@ -21,8 +21,11 @@ export class ProductService {
     return this.http.get<{ data: Product[], next_page_url: string | null }>(`${this.baseUrl}/products`, { params });
   }
 
-  addProduct(product: Product) {
-      return this.http.post<Product>(`${this.baseUrl}/products`, product)
-    }
-  
+  addProduct(product: FormData) {
+    return this.http.post<Product>(`${this.baseUrl}/products`, product);
+  }
+
+  getProduct(id: number): Observable<Product> {
+    return this.http.get<Product>(`${this.baseUrl}/products/${id}`);
+  }
 }

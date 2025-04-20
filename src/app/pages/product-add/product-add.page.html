@@ -1,5 +1,5 @@
 <!-- Header -->
-<div class="w-full bg-gray-300 shadow px-4 py-3 sticky top-0 z-50">
+<div class="w-full bg-gray-300 shadow px-4 py-4 sticky top-0 z-50 h-20">
   <div class="relative flex items-center justify-center">
     <!-- Botón a la izquierda -->
     <button (click)="goBack()" class="absolute left-0 text-lg text-black">
@@ -15,10 +15,30 @@
 
 
 <ion-content [fullscreen]="true">
-  <div class="relative bg-gray-300 h-[30%] flex flex-col justify-center items-center">
-    <ion-icon name="cloud-upload-outline" class="w-15 h-15 text-gray-400"></ion-icon>
-    <h5 class="text-lg font-semibold text-gray-400">Subir foto</h5>
+  <!-- Contenedor clickeable -->
+  <div
+  class="relative bg-gray-300 h-[200px] w-full flex justify-center items-center cursor-pointer overflow-hidden"
+  (click)="fileInput.click()"
+  >
+  <!-- Mostrar ícono y texto SOLO si no hay imagen seleccionada -->
+  <ng-container *ngIf="!imagePreview">
+    <ion-icon name="cloud-upload-outline" class="text-4xl text-gray-400"></ion-icon>
+    <h5 class="text-lg font-semibold text-gray-400 mt-2">Subir foto</h5>
+  </ng-container>
+
+  <!-- Imagen preview -->
+  <img
+    *ngIf="imagePreview"
+    [src]="imagePreview"
+    alt="Preview"
+    class="absolute inset-0 w-full h-full object-cover"
+  />
+
+  <!-- input invisible -->
+  <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)">
   </div>
+
+
   <div class="relative bg-white h-[70%] px-6 py-6">
     <!-- Formulario reactivo -->
     <form [formGroup]="productAddForm" (ngSubmit)="addProduct()" class="space-y-4">
@@ -32,6 +52,7 @@
           *ngIf="productAddForm.get('name')?.errors && (productAddForm.get('name')?.touched || productAddForm.get('name')?.dirty)"
           class="text-red-600 text-xs mt-1">
           <div *ngIf="productAddForm.get('name')?.errors?.['required']">El nombre es obligatorio.</div>
+          <div *ngIf="productAddForm.get('name')?.errors?.['maxlength']">Máx. 100 caracteres.</div>
         </div>
       </div>
 
@@ -42,7 +63,7 @@
               formControlName="price"
               (keydown)="preventLeadingZero($event)"
               (input)="cleanLeadingZeros($event)"
-              class="h-12 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black"
+              class="w-full h-12 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black"
             />
         <div
           *ngIf="productAddForm.get('price')?.errors && (productAddForm.get('price')?.touched || productAddForm.get('price')?.dirty)"
@@ -68,17 +89,19 @@
         <label class="block text-xs font-medium text-gray-700 mb-1">Categoría</label>
       
         <!-- Input estilo select -->
-        <div #dropdownTrigger class="h-12 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 text-black flex justify-between items-center cursor-pointer bg-white"
-          (click)="showDropdown = !showDropdown" 
-        >
-          {{ selectedCategoryName || 'Sin categoría' }}
-          <ion-icon name="chevron-down-outline"></ion-icon>
+        <div #dropdownTrigger
+        class="h-12 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 text-black flex justify-between items-center cursor-pointer bg-white truncate"
+        (click)="showDropdown = !showDropdown">
+
+        <span class="truncate w-full">{{ selectedCategoryName || 'Sin categoría' }}</span>
+        <ion-icon name="chevron-down-outline" class="ml-2 shrink-0"></ion-icon>
         </div>
+
       
         <!-- Dropdown personalizado -->
         <div
           *ngIf="showDropdown"
-          class="absolute left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto"
+          class="absolute left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
         >
           <button
             class="w-full text-center py-2 hover:bg-gray-100 text-sm min-h-[30px] text-black"
@@ -89,7 +112,7 @@
           </button>
           <button
             *ngFor="let cat of categories"
-            class="w-full text-center px-4 py-2 hover:bg-gray-100 text-sm min-h-[30px] text-black"
+            class="w-full text-center !px-4 hover:bg-gray-100 text-sm min-h-[30px] text-black !line-clamp-2"
             [ngClass]="{ 'bg-gray-200': selectedCategory === cat.id }"
             (click)="selectCategory(cat.id)"
             
@@ -129,3 +152,6 @@
     </form>
   </div>
 </ion-content>
+
+<app-popup [title]="popupTitle" [description]="popupDescription" [buttonText]="popupButtonText"
+    [headerColor]="popupHeaderColor" [visible]="showPopup" (onConfirm)="handlePopupAction()"></app-popup>
