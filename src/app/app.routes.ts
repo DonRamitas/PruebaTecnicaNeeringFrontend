@@ -26,6 +26,10 @@ export const routes: Routes = [
     canActivate: [AuthGuard]  // Protege la ruta con el guard
   },
   {
+    path: 'product-add',
+    loadComponent: () => import('./pages/product-add/product-add.page').then( m => m.ProductAddPage)
+  },
+  {
     path: '**',
     redirectTo: '',
   }

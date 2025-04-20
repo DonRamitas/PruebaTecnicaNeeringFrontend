@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Product } from '../models/product.model';
 import { Observable } from 'rxjs';
+import { tap, catchError, mapTo } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -19,5 +20,9 @@ export class ProductService {
   
     return this.http.get<{ data: Product[], next_page_url: string | null }>(`${this.baseUrl}/products`, { params });
   }
+
+  addProduct(product: Product) {
+      return this.http.post<Product>(`${this.baseUrl}/products`, product)
+    }
   
 }

@@ -154,4 +154,9 @@ export class ProductsPage implements OnInit {
   goCategories(){
     this.router.navigateByUrl('/categories', { replaceUrl: true });
   }
+
+  goAddProduct(){
+    console.log('hola');
+    this.router.navigate(['/product-add']);
+  }
 }
