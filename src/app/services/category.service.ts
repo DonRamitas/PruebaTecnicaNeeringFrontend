@@ -22,4 +22,20 @@ export class CategoryService {
   getAllCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.baseUrl}/categories/all`);
   }
+
+  addCategory(category: any) {
+    return this.http.post<any>(`${this.baseUrl}/categories`, category);
+  }
+
+  deleteCategory(id: number){
+      return this.http.delete<any>(`${this.baseUrl}/categories/${id}`);
+    }
+
+  updateCategory(id: number, category: any){
+      return this.http.post<any>(`${this.baseUrl}/categories/${id}`, category);
+    }
+
+  getCategory(id: number): Observable<Category> {
+      return this.http.get<Category>(`${this.baseUrl}/categories/${id}`);
+  }
 }//

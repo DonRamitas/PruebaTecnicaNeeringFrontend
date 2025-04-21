@@ -28,11 +28,20 @@
 
   <!-- Imagen preview -->
   <img
-    *ngIf="this.imagePreview"
-    [src]="this.imagePreview"
+    *ngIf="imagePreview"
+    [src]="imagePreview"
     alt="Preview"
     class="absolute inset-0 w-full h-full object-cover"
   />
+
+  <!-- Botón para quitar imagen -->
+  <button
+    *ngIf="imagePreview"
+    (click)="removeImage($event)"
+    class="absolute bottom-2 right-2 text-red-600 rounded-full z-10"
+  >
+    <ion-icon name="close-circle-outline" class="text-3xl"></ion-icon>
+  </button>
 
   <!-- input invisible -->
   <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)">

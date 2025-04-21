@@ -5,7 +5,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractContro
 import { Storage } from '@ionic/storage-angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { arrowBack, cloudUploadOutline, chevronDownOutline } from 'ionicons/icons';
+import { arrowBack, cloudUploadOutline, chevronDownOutline, closeCircleOutline } from 'ionicons/icons';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
 import { App as CapacitorApp } from '@capacitor/app';
 import { AuthService } from 'src/app/services/auth.service';
@@ -61,11 +61,12 @@ export class ProductEditPage implements OnInit {
       image: [null, [this.validateImage]]
     });
 
-    addIcons({ arrowBack, cloudUploadOutline, chevronDownOutline });
+    addIcons({ arrowBack, cloudUploadOutline, chevronDownOutline, closeCircleOutline });
   }
 
   productId:number = 0;
   product:Product | null = null;
+  changedImage:Boolean = false;
 
   ngOnInit() {
     this.loadCategories();
@@ -82,6 +83,7 @@ export class ProductEditPage implements OnInit {
       next: (response) => {
         this.loading = false;
         this.product = response;
+        this.changedImage = false;
         this.productEditForm.patchValue({
           name: this.product.name,
           price: this.product.price,
@@ -130,6 +132,11 @@ export class ProductEditPage implements OnInit {
     if (this.selectedCategory !== this.product?.category?.id) {
       updatedFields.category_id = this.selectedCategory;
     }
+
+    if (this.changedImage) {
+      updatedFields.image = this.selectedFile;
+    }
+    
   
     // Si no hay cambios, mostrar popup
     if (Object.keys(updatedFields).length === 0 && !this.selectedFile) {
@@ -154,10 +161,13 @@ export class ProductEditPage implements OnInit {
         formData.append(key, value.toString());
       }
     }
-  
-    // Añadir imagen si se seleccionó
-    if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
+
+    if(this.changedImage){
+      if (this.selectedFile) {
+        formData.append('image', this.selectedFile);
+      }else{
+        formData.append('remove_image', 'true'); // <- clave para decirle al backend "elimínala"
+      }
     }
 
     formData.forEach((value, key) => {
@@ -251,7 +261,7 @@ handlePopupAction() {
   }
 
   goBack(){
-    this.router.navigateByUrl('/products', {replaceUrl: true});
+    this.router.navigateByUrl('/product-detail/'+this.productId, {replaceUrl: true});
   }
 
   ionViewWillEnter() {
@@ -336,6 +346,8 @@ handlePopupAction() {
       this.selectedFile = file;
       this.productEditForm.get('image')?.setValue(file);
 
+      this.changedImage = true;
+
       // Generar preview
       const reader = new FileReader();
       reader.onload = () => {
@@ -345,6 +357,13 @@ handlePopupAction() {
     }
   }
 
+  removeImage(event: Event) {
+    event.stopPropagation(); // evita que se dispare el click del contenedor
+    this.imagePreview = null;
+    this.selectedFile=null;
+    this.changedImage = true;
+    this.productEditForm.get('image')?.reset();
+  }
 
 
 }

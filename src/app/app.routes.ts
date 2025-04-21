@@ -42,8 +42,15 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/product-edit/product-edit.page').then( m => m.ProductEditPage)
   },
   {
+    path: 'category-add',
+    loadComponent: () => import('./pages/category-add/category-add.page').then( m => m.CategoryAddPage)
+  },
+  {
+    path: 'category-edit/:id',
+    loadComponent: () => import('./pages/category-edit/category-edit.page').then( m => m.CategoryEditPage)
+  },
+  {
     path: '**',
     redirectTo: '',
   },
-  
 ];

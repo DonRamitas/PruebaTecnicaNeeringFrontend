@@ -1,17 +1,23 @@
 <div *ngIf="visible" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-  <div class="bg-white rounded-xl shadow-xl w-[90%] max-w-md">
-    <!-- Header -->
-    <div [ngClass]="headerColor" class="rounded-t-xl py-3 px-4 text-center text-title">
-      <h2 class="text-white text-lg font-semibold">{{ title }}</h2>
-    </div>
+  <div class="bg-white rounded-2xl shadow-xl w-[90%] max-w-md relative">
+    
+    <!-- Botón cerrar (ícono "X") -->
+    <button (click)="handleClick()" class="absolute top-4 right-4 text-2xl text-gray-600">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
 
-    <!-- Content -->
-    <div class="p-4 text-center text-gray-800 text-medium">
-      <p class="mb-4 whitespace-pre-line">{{ description }}</p>
-        <button (click)="handleClick()" class="!rounded-lg bg-fuchsia-900 text-white py-3 h-12 !px-10 text-medium">
-          {{ buttonText }}
-        </button>
-      
+    <!-- Contenido del modal -->
+    <div class="p-6 pt-10 text-center">
+      <h2 class="text-minititle font-semibold text-gray-900 mb-2">{{title}}</h2>
+      <p class="text-gray-700 mb-10">{{description}}</p>
+
+      <!-- Botón principal -->
+      <button
+        (click)="handleClick()"
+        class="bg-red-500 hover:bg-orange-600 text-white font-semibold !py-5 px-6 !rounded-lg w-full max-w-[175px] mx-auto block"
+      >
+        {{buttonText}}
+      </button>
     </div>
   </div>
 </div>

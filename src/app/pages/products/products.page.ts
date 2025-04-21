@@ -67,6 +67,7 @@ export class ProductsPage {
         this.currentPage = 1;
         this.hasMore = true;
         this.loading = false;
+        this.searchTerm = '';
         this.resetInfiniteScroll();
         this.loadProducts();
         this.loadCategories();

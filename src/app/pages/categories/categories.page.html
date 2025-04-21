@@ -5,7 +5,7 @@
       <ion-icon name="menu"></ion-icon>
     </button>
     <h1 class="text-title text-black font-bold">Categorías</h1>
-    <button class="text-3xl text-black">
+    <button class="text-3xl text-black" (click)="goAddCategory()">
       <ion-icon name="add"></ion-icon>
     </button>
   </div>
@@ -60,10 +60,10 @@
           
           <!-- Botones -->
           <div class="flex gap-5">
-            <button class="text-gray-500 text-xl">
+            <button (click)="goEditCategory(category.id)" class="text-gray-500 text-xl">
               <ion-icon name="create-outline"></ion-icon>
             </button>
-            <button class="text-gray-500 text-xl">
+            <button (click)="tryDelete(category.id)" class="text-gray-500 text-xl">
               <ion-icon name="trash-outline"></ion-icon>
             </button>
           </div>
@@ -100,4 +100,13 @@
   class="z-200"
 ></app-sidemenu>
 
-<app-loading-overlay [isLoading]="logoutLoading" class="z-300"></app-loading-overlay>
+<app-choose-popup [title]="popupTitle"
+[description]="popupDescription"
+[option1Text] = "option1Text"
+[option2Text] = "option2Text"
+[headerColor] = "popupHeaderColor"
+[visible]="showPopup"
+(onOption1)="selectOption1()"
+(onOption2)="selectOption2()"></app-choose-popup>
+
+<app-loading-overlay [isLoading]="logoutLoading || deleteLoading" class="z-300"></app-loading-overlay>

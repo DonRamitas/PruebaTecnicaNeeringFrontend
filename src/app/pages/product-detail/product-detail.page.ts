@@ -49,6 +49,10 @@ export class ProductDetailPage implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.fromAddProduct = params['fromAddProduct'] === 'true';
     });
+
+    if(this.fromAddProduct){
+      this.loadProduct(this.productId);
+    }
   }
 
   fromAddProduct:boolean = false;
@@ -59,8 +63,12 @@ export class ProductDetailPage implements OnInit {
   storagePrefix = 'http://localhost:8000/storage/'; // o donde tengas tus imágenes
 
   loadProduct(id: number) {
+    this.loading=true;
     this.productService.getProduct(id).subscribe({
-      next: (res) => this.product = res,
+      next: (res) => {
+        this.product = res;
+        this.loading=false;
+      },
       error: (err) => console.error('Error al cargar producto', err)
     });
   }

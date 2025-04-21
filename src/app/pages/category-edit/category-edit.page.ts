@@ -3,7 +3,7 @@ import { CommonModule} from '@angular/common';
 import { IonicModule, ToastController, Platform } from '@ionic/angular';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Storage } from '@ionic/storage-angular';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { arrowBack, cloudUploadOutline, chevronDownOutline } from 'ionicons/icons';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
@@ -15,7 +15,7 @@ import { CategoryService } from 'src/app/services/category.service';
 import { Category } from 'src/app/models/category.model';
 
 @Component({
-  selector: 'app-category-add',
+  selector: 'app-category-edit',
   standalone: true,
   imports: [
     CommonModule,
@@ -24,13 +24,13 @@ import { Category } from 'src/app/models/category.model';
     PopupComponent,
     LoadingOverlayComponent
   ],
-  templateUrl: './category-add.page.html',
-  styleUrls: ['./category-add.page.scss'],
+  templateUrl: './category-edit.page.html',
+  styleUrls: ['./category-edit.page.scss'],
 
 })
-export class CategoryAddPage {
+export class CategoryEditPage {
 
-  categoryAddForm: FormGroup;
+  categoryEditForm: FormGroup;
 
   loading = false;
 
@@ -38,37 +38,87 @@ export class CategoryAddPage {
     private fb: FormBuilder,
     private toastCtrl: ToastController,
     private router: Router,
+    private route: ActivatedRoute,
     private platform: Platform,
     private authService: AuthService,
     private productService: ProductService,
     private categoryService: CategoryService
 
   ) {
-    this.categoryAddForm = this.fb.group({
+    this.categoryEditForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(30)]],
     });
 
     addIcons({ arrowBack });
   }
-  async addCategory() {
-    if (this.categoryAddForm.invalid) {
+
+  ngOnInit() {
+    
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.loadCategory(+id);
+    }
+  }
+
+  category: Category | null = null;
+
+  loadCategory(id:number){
+    this.loading = true;
+    this.categoryService.getCategory(id).subscribe({
+      next: (response) => {
+        this.loading = false;
+        this.category = response;
+        console.log('loaded category');
+        this.categoryEditForm.patchValue({
+          name: this.category.name,
+        });
+      },
+      error: () => {
+        this.openErrorPopup('Error', 'Error al cargar categoría');
+        this.loading = false;
+      }
+    });
+  }
+
+  async editCategory() {
+    if (this.categoryEditForm.invalid) {
       this.openErrorPopup('Atención', 'Formulario inválido');
       return;
     }
   
     this.loading = true;
+  
+    const formValues = this.categoryEditForm.value;
+  
+    // Comparar campos modificados
+    if (formValues.name === this.category?.name) {
+      this.openErrorPopup('Sin cambios', 'No realizaste ningún cambio.');
+      this.loading = false;
+      return;
+    }
+  
+    const formData = new FormData();
 
-    this.categoryService.addCategory(this.categoryAddForm.value).subscribe({
+    formData.append('_method','PUT');
+
+    formData.append('name', formValues.name);
+
+    // Enviar al backend
+    this.categoryService.updateCategory(this.category!.id, formData).subscribe({
       next: (response) => {
+        console.log(response);
         this.loading = false;
-        this.openSuccessPopup(response.id,'Éxito', 'La categoría se añadió satisfactoriamente.');
+        this.openSuccessPopup(response.id, 'Éxito', 'La categoría se editó satisfactoriamente.');
       },
-      error: () => {
-        this.openErrorPopup('Error', 'Error al subir categoría');
+      error: (err) => {
+        console.error('Error en update:', err);
+        this.openErrorPopup('Error', 'Error al editar categoría');
         this.loading = false;
       }
     });
   }
+
+  //TODO: poner en ionview enter lo de load category
 
   showPopup = false;
   popupTitle = '';

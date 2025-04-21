@@ -1,23 +1,32 @@
 <div *ngIf="visible" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-  <div class="bg-white rounded-xl shadow-xl w-[90%] max-w-md">
-    <!-- Header -->
-    <div [ngClass]="headerColor" class="rounded-t-xl py-3 px-4 text-center text-title">
-      <h2 class="text-white text-lg font-semibold">{{ title }}</h2>
-    </div>
+  <div class="bg-white rounded-2xl shadow-xl w-[90%] max-w-md relative">
+    
+    <!-- Botón cerrar (ícono "X") -->
+    <button (click)="handleOption1()" class="absolute top-4 right-4 text-2xl text-gray-600">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
 
-    <!-- Content -->
-    <div class="p-4 text-center text-gray-800 text-medium">
-      <p class="mb-4 whitespace-pre-line">{{ description }}</p>
+    <!-- Contenido del modal -->
+    <div class="p-6 pt-10 text-center">
+      <h2 class="text-minititle font-semibold text-gray-900 mb-2">{{title}}</h2>
+      <p class="text-gray-700 mb-10">{{description}}</p>
 
-      <!-- Botones centrados con espacio entre ellos -->
-      <span class="flex justify-center gap-x-4 items-center">
-        <button (click)="handleOption1()" class="!rounded-lg bg-fuchsia-900 text-white py-3 h-12 !px-10 text-medium">
-          {{ option1Text }}
-        </button>
+      <!-- Botón principal -->
+       <span class="flex justify-center gap-x-4 items-center">
 
-        <button (click)="handleOption2()" class="!rounded-lg bg-red-600 text-white py-3 h-12 !px-10 text-medium">
-          {{ option2Text }}
-        </button>
+        <button
+        (click)="handleOption1()"
+        class="!border !border-gray-500 bg-white hover:bg-red-600 text-black font-semibold !py-5 px-6 !rounded-lg w-full max-w-[175px] mx-auto block"
+      >
+        {{option1Text}}
+      </button>
+
+      <button
+        (click)="handleOption2()"
+        class="bg-red-500 hover:bg-red-600 text-white font-semibold !py-5 px-6 !rounded-lg w-full max-w-[175px] mx-auto block"
+      >
+        {{option2Text}}
+      </button>
       </span>
     </div>
   </div>

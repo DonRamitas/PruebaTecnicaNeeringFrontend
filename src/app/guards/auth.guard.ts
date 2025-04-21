@@ -11,7 +11,7 @@ export const AuthGuard: CanActivateFn = () => {
     return true;
   } else {
     localStorage.removeItem('jwt'); // Limpia token inválido por seguridad
-    router.navigate(['/login']);
+    router.navigate(['/login'],{replaceUrl: true});
     return false;
   }
 };

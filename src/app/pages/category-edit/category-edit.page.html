@@ -8,7 +8,7 @@
 
     <!-- Título centrado -->
     <h5 class="text-minititle text-black font-bold text-center">
-      Agregar categoría
+      Editar categoría
     </h5>
   </div>
 </div>
@@ -18,7 +18,7 @@
   
   <div class="relative bg-white h-full px-6 py-6">
     <!-- Formulario reactivo -->
-    <form [formGroup]="categoryAddForm" (ngSubmit)="addCategory()" class="space-y-4">
+    <form [formGroup]="categoryEditForm" (ngSubmit)="editCategory()" class="space-y-4">
 
       <!-- Nombre -->
       <div>
@@ -26,16 +26,16 @@
         <input type="text" formControlName="name"
           class="h-12 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black" />
         <div
-          *ngIf="categoryAddForm.get('name')?.errors && (categoryAddForm.get('name')?.touched || categoryAddForm.get('name')?.dirty)"
+          *ngIf="categoryEditForm.get('name')?.errors && (categoryEditForm.get('name')?.touched || categoryEditForm.get('name')?.dirty)"
           class="text-red-600 text-xs mt-1">
-          <div *ngIf="categoryAddForm.get('name')?.errors?.['required']">El nombre es obligatorio.</div>
-          <div *ngIf="categoryAddForm.get('name')?.errors?.['maxlength']">Máx. 30 caracteres.</div>
+          <div *ngIf="categoryEditForm.get('name')?.errors?.['required']">El nombre es obligatorio.</div>
+          <div *ngIf="categoryEditForm.get('name')?.errors?.['maxlength']">Máx. 30 caracteres.</div>
         </div>
       </div>
 
 
-      <!-- Botón de Agregar Categoría -->
-      <button type="submit" [disabled]="categoryAddForm.invalid || loading"
+      <!-- Botón de Editar Categoría -->
+      <button type="submit" [disabled]="categoryEditForm.invalid || loading"
       class="!rounded-lg bg-fuchsia-900 text-white py-3 w-full h-12 flex items-center justify-center disabled:bg-gray-300">
         <ng-container *ngIf="!loading; else loadingTemplate">Guardar</ng-container>
         
