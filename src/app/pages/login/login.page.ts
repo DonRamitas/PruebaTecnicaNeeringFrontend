@@ -55,7 +55,7 @@ export class LoginPage implements OnInit, OnDestroy {
     });
 
     this.registerForm = this.fb.group({
-      name: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s]+$/)]],
+      name: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s]+$/),Validators.maxLength(30)]],
       email: ['', [Validators.required, Validators.email, Validators.pattern(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)]],
       birthdate: ['', [Validators.required, this.birthdateValidator]],
       countryCode: ['+56', Validators.required],
@@ -191,6 +191,10 @@ export class LoginPage implements OnInit, OnDestroy {
       this.popupHeaderColor = headerColor;
       this.showPopup = true;
     }, 0);
+  }
+
+  handlePopupAction(){
+    this.showPopup = false;
   }
 
   birthdateValidator(control: AbstractControl): ValidationErrors | null {

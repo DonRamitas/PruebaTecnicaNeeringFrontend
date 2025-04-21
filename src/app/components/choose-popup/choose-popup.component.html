@@ -1,0 +1,24 @@
+<div *ngIf="visible" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-xl w-[90%] max-w-md">
+    <!-- Header -->
+    <div [ngClass]="headerColor" class="rounded-t-xl py-3 px-4 text-center text-title">
+      <h2 class="text-white text-lg font-semibold">{{ title }}</h2>
+    </div>
+
+    <!-- Content -->
+    <div class="p-4 text-center text-gray-800 text-medium">
+      <p class="mb-4 whitespace-pre-line">{{ description }}</p>
+
+      <!-- Botones centrados con espacio entre ellos -->
+      <span class="flex justify-center gap-x-4 items-center">
+        <button (click)="handleOption1()" class="!rounded-lg bg-fuchsia-900 text-white py-3 h-12 !px-10 text-medium">
+          {{ option1Text }}
+        </button>
+
+        <button (click)="handleOption2()" class="!rounded-lg bg-red-600 text-white py-3 h-12 !px-10 text-medium">
+          {{ option2Text }}
+        </button>
+      </span>
+    </div>
+  </div>
+</div>

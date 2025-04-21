@@ -28,4 +28,12 @@ export class ProductService {
   getProduct(id: number): Observable<Product> {
     return this.http.get<Product>(`${this.baseUrl}/products/${id}`);
   }
+
+  deleteProduct(id: number){
+    return this.http.delete<Product>(`${this.baseUrl}/products/${id}`);
+  }
+
+  updateProduct(id: number, product: FormData){
+    return this.http.post<Product>(`${this.baseUrl}/products/${id}`, product);
+  }
 }

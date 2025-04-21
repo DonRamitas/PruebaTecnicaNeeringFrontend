@@ -4,13 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 
 @Component({
-  selector: 'app-category-form',
-  templateUrl: './category-form.page.html',
-  styleUrls: ['./category-form.page.scss'],
+  selector: 'app-category-add',
+  templateUrl: './category-add.page.html',
+  styleUrls: ['./category-add.page.scss'],
   standalone: true,
   imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
 })
-export class CategoryFormPage implements OnInit {
+export class CategoryAddPage implements OnInit {
 
   constructor() { }
 

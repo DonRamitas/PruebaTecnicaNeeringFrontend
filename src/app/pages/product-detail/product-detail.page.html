@@ -11,11 +11,11 @@
       Detalle del producto
     </h5>
 
-    <button class="absolute right-12 text-lg text-black">
+    <button (click)="goEdit()" class="absolute right-12 text-lg text-black">
       <ion-icon name="create-outline"></ion-icon>
     </button>
 
-    <button class="absolute right-2 text-lg text-red-500">
+    <button (click)="tryDelete()" class="absolute right-2 text-lg text-red-500">
       <ion-icon name="trash-outline"></ion-icon>
     </button>
   </div>
@@ -57,5 +57,13 @@
 
 </ion-content>
 
-<app-popup [title]="popupTitle" [description]="popupDescription" [buttonText]="popupButtonText"
-    [headerColor]="popupHeaderColor" [visible]="showPopup"></app-popup>
+<app-choose-popup [title]="popupTitle"
+[description]="popupDescription"
+[option1Text] = "option1Text"
+[option2Text] = "option2Text"
+[headerColor] = "popupHeaderColor"
+[visible]="showPopup"
+(onOption1)="selectOption1()"
+(onOption2)="selectOption2()"></app-choose-popup>
+
+<app-loading-overlay [isLoading]="loading" class="z-300"></app-loading-overlay>

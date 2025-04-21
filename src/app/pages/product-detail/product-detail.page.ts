@@ -8,6 +8,8 @@ import { PopupComponent } from 'src/app/components/popup/popup.component';
 import { ActivatedRoute } from '@angular/router';
 import { ProductService } from 'src/app/services/product.service';
 import { Product } from 'src/app/models/product.model';
+import { ChoosePopupComponent } from 'src/app/components/choose-popup/choose-popup.component';
+import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-template',
@@ -15,7 +17,9 @@ import { Product } from 'src/app/models/product.model';
   imports: [
     CommonModule,
     IonicModule,
-    PopupComponent
+    PopupComponent,
+    ChoosePopupComponent,
+    LoadingOverlayComponent
   ],
   templateUrl: './product-detail.page.html',
   styleUrls: ['./product-detail.page.scss'],
@@ -31,14 +35,25 @@ export class ProductDetailPage implements OnInit {
     addIcons({ arrowBack, createOutline, trashOutline });
   }
 
+  productId:number = 0;
+
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadProduct(+id);
+      this.productId = +id;
     }
   }
 
+  ionViewWillEnter(){
+    this.route.queryParams.subscribe(params => {
+      this.fromAddProduct = params['fromAddProduct'] === 'true';
+    });
+  }
+
   fromAddProduct:boolean = false;
+
+  loading:boolean = false;
   
   product: Product | null = null;
   storagePrefix = 'http://localhost:8000/storage/'; // o donde tengas tus imágenes
@@ -53,13 +68,15 @@ export class ProductDetailPage implements OnInit {
   showPopup = false;
   popupTitle = '';
   popupDescription = '';
-  popupButtonText = '';
+  option1Text = '';
+  option2Text = '';
   popupHeaderColor = '';
 
   openPopup(
-    title: string = 'Atención',
-    description: string = 'Algo pasó',
-    buttonText: string = 'OK',
+    title: string = 'Eliminar',
+    description: string = '¿Segur@ que quieres eliminar este producto?',
+    option1Text: string = 'Volver',
+    option2Text: string = 'Eliminar',
     headerColor: string = 'bg-fuchsia-800'
   ) {
     // Oculta primero por si ya estaba visible
@@ -69,14 +86,48 @@ export class ProductDetailPage implements OnInit {
     setTimeout(() => {
       this.popupTitle = title;
       this.popupDescription = description;
-      this.popupButtonText = buttonText;
+      this.option1Text = option1Text;
+      this.option2Text = option2Text;
       this.popupHeaderColor = headerColor;
       this.showPopup = true;
     }, 0);
   }
 
   goBack() {
-    this.router.navigate(['/products'], { state: { refresh: true } });
+    if (this.fromAddProduct) {
+      this.router.navigate(['/products'], {
+        queryParams: { fromAddProduct: true },
+        replaceUrl: true // ← para no volver al detalle otra vez
+      });
+    } else {
+      this.router.navigateByUrl('/products',{replaceUrl: true});
+    }
+  }
+
+  goEdit(){
+    this.router.navigate(['/product-edit', this.productId]);
+  }
+
+  tryDelete(){
+    this.openPopup();
+  }
+
+  selectOption1(){
+    this.showPopup = false;
+  }
+
+  selectOption2(){
+    this.loading = true;
+    this.productService.deleteProduct(this.productId).subscribe({
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/products'], {
+          queryParams: { fromAddProduct: true },
+          replaceUrl: true // ← para no volver al detalle otra vez
+        });
+      },
+      error: (err) => console.error('Error al cargar producto', err)
+    });
   }
 
 }

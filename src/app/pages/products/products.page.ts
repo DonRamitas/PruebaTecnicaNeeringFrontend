@@ -6,7 +6,7 @@ import { Category } from 'src/app/models/category.model';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { add, menu, search, chevronForwardOutline, funnel, close} from 'ionicons/icons';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -15,6 +15,7 @@ import { CategoryService } from 'src/app/services/category.service';
 import { ElementRef, HostListener } from '@angular/core';
 import { SidemenuComponent } from 'src/app/components/side-menu/side-menu.component';
 import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
+import { first } from 'rxjs';
 
 @Component({
   selector: 'app-products',
@@ -24,7 +25,7 @@ import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/load
   styleUrls: ['./products.page.scss'],
 })
 
-export class ProductsPage implements OnInit {
+export class ProductsPage {
   @ViewChild('dropdownRef') dropdownRef!: ElementRef;
   @ViewChild('filterButtonRef') filterButtonRef!: ElementRef;
   @ViewChild('ionScroll') infiniteScroll!: IonInfiniteScroll;
@@ -47,27 +48,33 @@ export class ProductsPage implements OnInit {
     private productService: ProductService,
     private categoryService: CategoryService,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService
   ) {
     addIcons({ add, menu, search, chevronForwardOutline, funnel, close });
   }
 
-  ngOnInit() {
-    this.loadCategories();
-    this.loadProducts();
-  }
+  firstTime:boolean = true;
 
   ionViewWillEnter() {
-    // Solo reiniciar productos y página, mantener filtros
-    this.isFilterActive = false;
-    this.selectedCategory = null;
-    this.products = [];
-    this.currentPage = 1;
-    this.hasMore = true;
-    this.loading = false;
-    this.resetInfiniteScroll();
-    this.loadProducts();
+    this.route.queryParams.pipe(first()).subscribe(params => {
+      const fromAddProduct = params['fromAddProduct'] === 'true';
+      if (fromAddProduct || this.firstTime) {
+        this.firstTime = false;
+        this.isFilterActive = false;
+        this.selectedCategory = null;
+        this.products = [];
+        this.currentPage = 1;
+        this.hasMore = true;
+        this.loading = false;
+        this.resetInfiniteScroll();
+        this.loadProducts();
+        this.loadCategories();
+      }
+    });
   }
+
+  
   
   resetInfiniteScroll() {
     if (this.infiniteScroll) {
@@ -88,6 +95,11 @@ export class ProductsPage implements OnInit {
     }
   
     this.loading = true;
+  
+    if (!event && this.infiniteScroll) {
+      this.infiniteScroll.disabled = true; // <- Detén scroll hasta que termine
+    }
+  
     console.log('Loading products, page:', this.currentPage);
   
     this.productService.searchProducts(this.currentPage, this.searchTerm, this.selectedCategory).subscribe({
@@ -100,6 +112,11 @@ export class ProductsPage implements OnInit {
         } else {
           this.hasMore = false;
         }
+  
+        if (this.infiniteScroll) {
+          this.infiniteScroll.disabled = !this.hasMore;
+        }
+  
         this.loading = false;
         if (event) event.target.complete();
       },
@@ -107,10 +124,16 @@ export class ProductsPage implements OnInit {
         console.error('Error loading products:', err);
         this.loading = false;
         this.hasMore = false;
+  
+        if (this.infiniteScroll) {
+          this.infiniteScroll.disabled = true;
+        }
+  
         if (event) event.target.complete();
       }
     });
   }
+  
 
   resetAndSearch() {
     this.products = [];

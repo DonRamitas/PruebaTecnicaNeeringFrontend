@@ -8,7 +8,7 @@
 
     <!-- Título centrado -->
     <h5 class="text-minititle text-black font-bold text-center">
-      Agregar producto
+      Editar producto
     </h5>
   </div>
 </div>
@@ -28,8 +28,8 @@
 
   <!-- Imagen preview -->
   <img
-    *ngIf="imagePreview"
-    [src]="imagePreview"
+    *ngIf="this.imagePreview"
+    [src]="this.imagePreview"
     alt="Preview"
     class="absolute inset-0 w-full h-full object-cover"
   />
@@ -41,18 +41,18 @@
 
   <div class="relative bg-white h-[70%] px-6 py-6">
     <!-- Formulario reactivo -->
-    <form [formGroup]="productAddForm" (ngSubmit)="addProduct()" class="space-y-4">
+    <form [formGroup]="productEditForm" (ngSubmit)="editProduct()" class="space-y-4">
 
       <!-- Nombre -->
       <div>
         <label class="block text-xs font-medium text-gray-700 mb-1">Nombre del producto</label>
-        <input type="text" formControlName="name"
+        <input type="text" formControlName="name" 
           class="h-12 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black" />
         <div
-          *ngIf="productAddForm.get('name')?.errors && (productAddForm.get('name')?.touched || productAddForm.get('name')?.dirty)"
+          *ngIf="productEditForm.get('name')?.errors && (productEditForm.get('name')?.touched || productEditForm.get('name')?.dirty)"
           class="text-red-600 text-xs mt-1">
-          <div *ngIf="productAddForm.get('name')?.errors?.['required']">El nombre es obligatorio.</div>
-          <div *ngIf="productAddForm.get('name')?.errors?.['maxlength']">Máx. 100 caracteres.</div>
+          <div *ngIf="productEditForm.get('name')?.errors?.['required']">El nombre es obligatorio.</div>
+          <div *ngIf="productEditForm.get('name')?.errors?.['maxlength']">Máx. 100 caracteres.</div>
         </div>
       </div>
 
@@ -66,19 +66,19 @@
               class="w-full h-12 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black"
             />
         <div
-          *ngIf="productAddForm.get('price')?.errors && (productAddForm.get('price')?.touched || productAddForm.get('price')?.dirty)"
+          *ngIf="productEditForm.get('price')?.errors && (productEditForm.get('price')?.touched || productEditForm.get('price')?.dirty)"
           class="text-red-600 text-xs mt-1">
           <div
-            *ngIf="productAddForm.get('price')?.errors && (productAddForm.get('price')?.touched || productAddForm.get('price')?.dirty)"
+            *ngIf="productEditForm.get('price')?.errors && (productEditForm.get('price')?.touched || productEditForm.get('price')?.dirty)"
             class="text-red-600 text-xs mt-1">
             
-            <div *ngIf="productAddForm.get('price')?.errors?.['required']">
+            <div *ngIf="productEditForm.get('price')?.errors?.['required']">
               El precio es inválido.
             </div>
-            <div *ngIf="productAddForm.get('price')?.errors?.['max']">
+            <div *ngIf="productEditForm.get('price')?.errors?.['max']">
               El precio máximo es de $100.000.000 CLP.
             </div>
-            <div *ngIf="productAddForm.get('price')?.errors?.['min']">
+            <div *ngIf="productEditForm.get('price')?.errors?.['min']">
               El precio debe ser mayor a 0.
             </div>
           </div>
@@ -130,17 +130,17 @@
           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black resize-none overflow-y-auto max-h-40">
         </textarea>
         <div
-          *ngIf="productAddForm.get('description')?.errors && (productAddForm.get('description')?.touched || productAddForm.get('description')?.dirty)"
+          *ngIf="productEditForm.get('description')?.errors && (productEditForm.get('description')?.touched || productEditForm.get('description')?.dirty)"
           class="text-red-600 text-xs mt-1">
-          <div *ngIf="productAddForm.get('description')?.errors?.['maxlength']">
+          <div *ngIf="productEditForm.get('description')?.errors?.['maxlength']">
             La descripción no puede superar los 300 caracteres.
           </div>
         </div>
       </div>
       
 
-      <!-- Botón de Agregar Producto -->
-      <button type="submit" [disabled]="productAddForm.invalid || loading"
+      <!-- Botón de Editar Producto -->
+      <button type="submit" [disabled]="productEditForm.invalid || loading"
       class="!rounded-lg bg-fuchsia-900 text-white py-3 w-full h-12 flex items-center justify-center disabled:bg-gray-300">
         <ng-container *ngIf="!loading; else loadingTemplate">Guardar</ng-container>
         

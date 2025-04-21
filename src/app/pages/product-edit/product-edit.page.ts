@@ -3,7 +3,7 @@ import { CommonModule} from '@angular/common';
 import { IonicModule, ToastController, Platform } from '@ionic/angular';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Storage } from '@ionic/storage-angular';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { arrowBack, cloudUploadOutline, chevronDownOutline } from 'ionicons/icons';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
@@ -13,9 +13,10 @@ import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/load
 import { ProductService } from 'src/app/services/product.service';
 import { CategoryService } from 'src/app/services/category.service';
 import { Category } from 'src/app/models/category.model';
+import { Product } from 'src/app/models/product.model';
 
 @Component({
-  selector: 'app-product-add',
+  selector: 'app-product-edit',
   standalone: true,
   imports: [
     CommonModule,
@@ -24,31 +25,31 @@ import { Category } from 'src/app/models/category.model';
     PopupComponent,
     LoadingOverlayComponent
   ],
-  templateUrl: './product-add.page.html',
-  styleUrls: ['./product-add.page.scss'],
+  templateUrl: './product-edit.page.html',
+  styleUrls: ['./product-edit.page.scss'],
 
 })
-export class ProductAddPage {
+export class ProductEditPage implements OnInit {
 
   @ViewChild('dropdownRef') dropdownRef!: ElementRef;
   @ViewChild('dropdownTrigger') dropdownTriggerRef!: ElementRef;
 
-  productAddForm: FormGroup;
+  productEditForm: FormGroup;
 
   loading = false;
+
+  storagePrefix = 'http://localhost:8000/storage/'; // o donde tengas tus imágenes
 
   constructor(
     private fb: FormBuilder,
     private storage: Storage,
-    private toastCtrl: ToastController,
     private router: Router,
-    private platform: Platform,
-    private authService: AuthService,
+    private route: ActivatedRoute,
     private productService: ProductService,
     private categoryService: CategoryService
 
   ) {
-    this.productAddForm = this.fb.group({
+    this.productEditForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
       price: [null, [
         Validators.required,
@@ -63,44 +64,116 @@ export class ProductAddPage {
     addIcons({ arrowBack, cloudUploadOutline, chevronDownOutline });
   }
 
+  productId:number = 0;
+  product:Product | null = null;
+
+  ngOnInit() {
+    this.loadCategories();
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.loadProduct(+id);
+      this.productId = +id;
+    }
+  }
+
+  loadProduct(id:number){
+    this.loading = true;
+    this.productService.getProduct(id).subscribe({
+      next: (response) => {
+        this.loading = false;
+        this.product = response;
+        this.productEditForm.patchValue({
+          name: this.product.name,
+          price: this.product.price,
+          description: this.product.description,
+        });
+        this.selectCategory(this.product.category ? this.product.category.id : null);
+        this.imagePreview = response.image
+  ? `http://localhost:8000/storage/${response.image}` // ajusta según tu backend
+  : null;
+      },
+      error: () => {
+        this.openErrorPopup('Error', 'Error al subir producto');
+        this.loading = false;
+      }
+    });
+  }
+
   async ionViewDidEnter() {
     await this.storage.create();
   }
 
-  async addProduct() {
-    if (this.productAddForm.invalid) {
+  async editProduct() {
+    if (this.productEditForm.invalid) {
       this.openErrorPopup('Atención', 'Formulario inválido');
       return;
     }
   
     this.loading = true;
   
-    const formValues = this.productAddForm.value;
+    const formValues = this.productEditForm.value;
+    const updatedFields: any = {};
+  
+    // Comparar campos modificados
+    if (formValues.name !== this.product?.name) {
+      updatedFields.name = formValues.name;
+    }
+  
+    if (+formValues.price !== +this.product!.price) {
+      updatedFields.price = formValues.price;
+    }
+  
+    if (formValues.description !== this.product?.description) {
+      updatedFields.description = formValues.description ?? '';
+    }
+  
+    if (this.selectedCategory !== this.product?.category?.id) {
+      updatedFields.category_id = this.selectedCategory;
+    }
+  
+    // Si no hay cambios, mostrar popup
+    if (Object.keys(updatedFields).length === 0 && !this.selectedFile) {
+      this.openErrorPopup('Sin cambios', 'No realizaste ningún cambio.');
+      this.loading = false;
+      return;
+    }
   
     const formData = new FormData();
-    formData.append('name', formValues.name);
-    formData.append('price', formValues.price);
 
-    if(formValues.description!=null){
-      formData.append('description', formValues.description);
-    }
-    
+    formData.append('_method','PUT');
+  
+    const nullableFields = ['category_id', 'description'];
 
-    if(this.selectedCategory!=null){
-      formData.append('category_id', this.selectedCategory.toString() );
+    for (const key in updatedFields) {
+      const value = updatedFields[key];
+
+      // Si es uno de los campos que pueden ser null, permite string vacío
+      if (nullableFields.includes(key)) {
+        formData.append(key, value === null ? '' : value.toString());
+      } else if (value !== null && value !== undefined) {
+        formData.append(key, value.toString());
+      }
     }
   
+    // Añadir imagen si se seleccionó
     if (this.selectedFile) {
       formData.append('image', this.selectedFile);
     }
+
+    formData.forEach((value, key) => {
+      console.log(`${key}:`, value);
+    });
   
-    this.productService.addProduct(formData).subscribe({
+    // Enviar al backend
+    this.productService.updateProduct(this.productId, formData).subscribe({
       next: (response) => {
+        console.log(response);
         this.loading = false;
-        this.openSuccessPopup(response.id,'Éxito', 'El producto se añadió satisfactoriamente.');
+        this.openSuccessPopup(response.id, 'Éxito', 'El producto se editó satisfactoriamente.');
       },
-      error: () => {
-        this.openErrorPopup('Error', 'Error al subir producto');
+      error: (err) => {
+        console.error('Error en update:', err);
+        this.openErrorPopup('Error', 'Error al editar producto');
         this.loading = false;
       }
     });
@@ -181,10 +254,6 @@ handlePopupAction() {
     this.router.navigateByUrl('/products', {replaceUrl: true});
   }
 
-  ngOnInit() {
-    this.loadCategories();
-  }
-
   ionViewWillEnter() {
     this.loadCategories();
   }
@@ -213,7 +282,7 @@ handlePopupAction() {
     // Si se pegaron ceros tipo "0005", limpiarlos
     if (/^0\d+/.test(value)) {
       input.value = value.replace(/^0+/, '');
-      this.productAddForm.get('price')?.setValue(input.value);
+      this.productEditForm.get('price')?.setValue(input.value);
     }
   }
 
@@ -265,7 +334,7 @@ handlePopupAction() {
       }
 
       this.selectedFile = file;
-      this.productAddForm.get('image')?.setValue(file);
+      this.productEditForm.get('image')?.setValue(file);
 
       // Generar preview
       const reader = new FileReader();
