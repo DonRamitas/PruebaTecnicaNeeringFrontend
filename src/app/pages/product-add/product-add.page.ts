@@ -5,7 +5,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractContro
 import { Storage } from '@ionic/storage-angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { arrowBack, cloudUploadOutline, chevronDownOutline } from 'ionicons/icons';
+import { arrowBack, cloudUploadOutline, chevronDownOutline, closeCircleOutline } from 'ionicons/icons';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
 import { App as CapacitorApp } from '@capacitor/app';
 import { AuthService } from 'src/app/services/auth.service';
@@ -60,7 +60,7 @@ export class ProductAddPage {
       image: [null, [this.validateImage]]
     });
 
-    addIcons({ arrowBack, cloudUploadOutline, chevronDownOutline });
+    addIcons({ arrowBack, cloudUploadOutline, chevronDownOutline, closeCircleOutline });
   }
 
   async ionViewDidEnter() {
@@ -144,10 +144,8 @@ export class ProductAddPage {
     this.popupDescription = description;
     this.popupButtonText = buttonText;
     this.popupHeaderColor = headerColor;
-    console.log("yendose1");
     this.popupAction = () => {
       this.showPopup = false;
-      console.log("yendose2");
       this.router.navigate(['/product-detail', idProduct], {
         queryParams: { fromAddProduct: true },
         replaceUrl: true // Reemplaza el historial para no volver a add
@@ -276,6 +274,11 @@ handlePopupAction() {
     }
   }
 
-
+  removeImage(event: Event) {
+    event.stopPropagation(); // evita que se dispare el click del contenedor
+    this.imagePreview = null;
+    this.selectedFile=null;
+    this.productAddForm.get('image')?.reset();
+  }
 
 }

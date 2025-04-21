@@ -24,7 +24,7 @@ import { ChoosePopupComponent } from 'src/app/components/choose-popup/choose-pop
   styleUrls: ['./categories.page.scss'],
 })
 
-export class CategoriesPage implements OnInit {
+export class CategoriesPage {
   @ViewChild('ionScroll') infiniteScroll!: IonInfiniteScroll;
   categories: Category[] = [];
   currentPage = 1;
@@ -44,17 +44,12 @@ export class CategoriesPage implements OnInit {
     addIcons({ add, menu, search, chevronForwardOutline, close, createOutline, trashOutline });
   }
 
-  ngOnInit() {
-    this.loadCategories();
-  }
-
   firstTime:Boolean = true;
 
   ionViewWillEnter() {
       this.route.queryParams.pipe(first()).subscribe(params => {
         const fromAddCategory = params['fromAddCategory'] === 'true';
         if (fromAddCategory || this.firstTime) {
-          console.log('came with refresh');
           this.firstTime = false;
           this.resetView();
         }
@@ -85,8 +80,8 @@ export class CategoriesPage implements OnInit {
     popupHeaderColor = '';
   
     openPopup(
-      title: string = 'Eliminar',
-      description: string = '¿Segur@ que quieres eliminar esta categoría?',
+      title: string = 'Eliminar categoría',
+      description: string = '¿Estás seguro que deseas eliminar la categoría?',
       option1Text: string = 'Volver',
       option2Text: string = 'Eliminar',
       headerColor: string = 'bg-fuchsia-800'

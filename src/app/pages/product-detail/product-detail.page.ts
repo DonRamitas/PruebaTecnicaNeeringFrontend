@@ -81,10 +81,10 @@ export class ProductDetailPage implements OnInit {
   popupHeaderColor = '';
 
   openPopup(
-    title: string = 'Eliminar',
-    description: string = '¿Segur@ que quieres eliminar este producto?',
-    option1Text: string = 'Volver',
-    option2Text: string = 'Eliminar',
+    title: string = 'Eliminar producto',
+    description: string = '¿Estás seguro que deseas eliminar el producto?',
+    option1Text: string = 'Cancelar',
+    option2Text: string = 'Sí, eliminar',
     headerColor: string = 'bg-fuchsia-800'
   ) {
     // Oculta primero por si ya estaba visible

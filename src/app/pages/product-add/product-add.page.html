@@ -1,159 +1,122 @@
-<!-- Header -->
-<div class="w-full bg-gray-300 shadow px-4 py-4 sticky top-0 z-50 h-20">
-  <div class="relative flex items-center justify-center">
-    <!-- Botón a la izquierda -->
-    <button (click)="goBack()" class="absolute left-0 text-lg text-black">
-      <ion-icon name="arrow-back"></ion-icon>
+<ion-content class="!p-0">
+  <!-- Contenedor principal que se comporta como una columna -->
+  <div class="flex flex-col h-full">
+
+    <!-- Header (fijo arriba si quieres, o parte del scroll) -->
+    <div class="w-full bg-gray-200 shadow px-4 py-4 h-20 flex items-center justify-center relative">
+      <button (click)="goBack()" class="absolute left-4 text-lg text-black">
+        <ion-icon name="arrow-back"></ion-icon>
+      </button>
+      <h5 class="text-minititle text-black font-bold text-center">Agregar producto</h5>
+    </div>
+
+    <!-- Contenido scrolleable -->
+    <div class="flex-1 overflow-y-auto">
+
+      <!-- Imagen -->
+      <div class="relative bg-gray-200 h-[200px] w-full flex justify-center items-center cursor-pointer overflow-hidden"
+        (click)="fileInput.click()">
+        <div *ngIf="!imagePreview" class="flex flex-col items-center justify-center text-center">
+          <ion-icon name="cloud-upload-outline" class="text-4xl text-gray-400"></ion-icon>
+          <h5 class="text-lg font-semibold text-gray-400">Subir foto</h5>
+        </div>        
+        <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview"
+          class="absolute inset-0 w-full h-full object-cover" />
+        <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)">
+        <button *ngIf="imagePreview" (click)="removeImage($event)"
+            class="absolute bottom-2 right-2 text-red-600 rounded-full z-10">
+      <ion-icon name="close-circle-outline" class="text-3xl"></ion-icon>
     </button>
-
-    <!-- Título centrado -->
-    <h5 class="text-minititle text-black font-bold text-center">
-      Agregar producto
-    </h5>
-  </div>
-</div>
-
-
-<ion-content [fullscreen]="true">
-  <!-- Contenedor clickeable -->
-  <div
-  class="relative bg-gray-300 h-[200px] w-full flex justify-center items-center cursor-pointer overflow-hidden"
-  (click)="fileInput.click()"
-  >
-  <!-- Mostrar ícono y texto SOLO si no hay imagen seleccionada -->
-  <ng-container *ngIf="!imagePreview">
-    <ion-icon name="cloud-upload-outline" class="text-4xl text-gray-400"></ion-icon>
-    <h5 class="text-lg font-semibold text-gray-400 mt-2">Subir foto</h5>
-  </ng-container>
-
-  <!-- Imagen preview -->
-  <img
-    *ngIf="imagePreview"
-    [src]="imagePreview"
-    alt="Preview"
-    class="absolute inset-0 w-full h-full object-cover"
-  />
-
-  <!-- input invisible -->
-  <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)">
-  </div>
-
-
-  <div class="relative bg-white h-[70%] px-6 py-6">
-    <!-- Formulario reactivo -->
-    <form [formGroup]="productAddForm" (ngSubmit)="addProduct()" class="space-y-4">
-
-      <!-- Nombre -->
-      <div>
-        <label class="block text-xs font-medium text-gray-700 mb-1">Nombre del producto</label>
-        <input type="text" formControlName="name"
-          class="h-12 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black" />
-        <div
-          *ngIf="productAddForm.get('name')?.errors && (productAddForm.get('name')?.touched || productAddForm.get('name')?.dirty)"
-          class="text-red-600 text-xs mt-1">
-          <div *ngIf="productAddForm.get('name')?.errors?.['required']">El nombre es obligatorio.</div>
-          <div *ngIf="productAddForm.get('name')?.errors?.['maxlength']">Máx. 100 caracteres.</div>
-        </div>
       </div>
 
-      <div>
-        <label class="block text-xs font-medium !text-gray-700 mb-1">Precio</label>
-          <input
-              type="number"
-              formControlName="price"
-              (keydown)="preventLeadingZero($event)"
+      <!-- Formulario -->
+      <div class="bg-white px-6 py-6 space-y-10">
+        <form [formGroup]="productAddForm" class="space-y-4">
+
+          <!-- Campo: Nombre -->
+          <div>
+            <label class="block text-sm text-gray-700 mb-1">Nombre del producto</label>
+            <input type="text" formControlName="name"
+              class="h-12 w-full px-4 py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black" />
+            <div
+              *ngIf="productAddForm.get('name')?.errors && (productAddForm.get('name')?.touched || productAddForm.get('name')?.dirty)"
+              class="text-red-600 text-xs mt-1">
+              <div *ngIf="productAddForm.get('name')?.errors?.['required']">El nombre es obligatorio.</div>
+              <div *ngIf="productAddForm.get('name')?.errors?.['maxlength']">Máx. 100 caracteres.</div>
+            </div>
+          </div>
+
+          <!-- Campo: Precio -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+            <input type="number" formControlName="price" (keydown)="preventLeadingZero($event)"
               (input)="cleanLeadingZeros($event)"
-              class="w-full h-12 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black"
-            />
-        <div
-          *ngIf="productAddForm.get('price')?.errors && (productAddForm.get('price')?.touched || productAddForm.get('price')?.dirty)"
-          class="text-red-600 text-xs mt-1">
-          <div
-            *ngIf="productAddForm.get('price')?.errors && (productAddForm.get('price')?.touched || productAddForm.get('price')?.dirty)"
-            class="text-red-600 text-xs mt-1">
-            
-            <div *ngIf="productAddForm.get('price')?.errors?.['required']">
-              El precio es inválido.
-            </div>
-            <div *ngIf="productAddForm.get('price')?.errors?.['max']">
-              El precio máximo es de $100.000.000 CLP.
-            </div>
-            <div *ngIf="productAddForm.get('price')?.errors?.['min']">
-              El precio debe ser mayor a 0.
+              class="w-full h-12 px-4 py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black" />
+            <div
+              *ngIf="productAddForm.get('price')?.errors && (productAddForm.get('price')?.touched || productAddForm.get('price')?.dirty)"
+              class="text-red-600 text-xs mt-1">
+              <div *ngIf="productAddForm.get('price')?.errors?.['required']">El precio es inválido.</div>
+              <div *ngIf="productAddForm.get('price')?.errors?.['max']">Máx. $100.000.000 CLP.</div>
+              <div *ngIf="productAddForm.get('price')?.errors?.['min']">Debe ser mayor a 0.</div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div class="relative" #dropdownRef>
-        <label class="block text-xs font-medium text-gray-700 mb-1">Categoría</label>
-      
-        <!-- Input estilo select -->
-        <div #dropdownTrigger
-        class="h-12 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 text-black flex justify-between items-center cursor-pointer bg-white truncate"
-        (click)="showDropdown = !showDropdown">
+          <!-- Campo: Categoría -->
+          <div class="relative" #dropdownRef>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+            <div #dropdownTrigger
+              class="h-12 w-full px-4 py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 text-black flex justify-between items-center cursor-pointer bg-white truncate"
+              (click)="showDropdown = !showDropdown">
+              <span class="truncate w-full">{{ selectedCategoryName || 'Sin categoría' }}</span>
+              <ion-icon name="chevron-down-outline" class="ml-2 shrink-0"></ion-icon>
+            </div>
 
-        <span class="truncate w-full">{{ selectedCategoryName || 'Sin categoría' }}</span>
-        <ion-icon name="chevron-down-outline" class="ml-2 shrink-0"></ion-icon>
-        </div>
-
-      
-        <!-- Dropdown personalizado -->
-        <div
-          *ngIf="showDropdown"
-          class="absolute left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
-        >
-          <button
-            class="w-full text-center py-2 hover:bg-gray-100 text-sm min-h-[30px] text-black"
-            [ngClass]="{ 'bg-gray-200': selectedCategory === null }"
-            (click)="selectCategory(null)"
-          >
-            Sin categoría
-          </button>
-          <button
-            *ngFor="let cat of categories"
-            class="w-full text-center !px-4 hover:bg-gray-100 text-sm min-h-[30px] text-black !line-clamp-2"
-            [ngClass]="{ 'bg-gray-200': selectedCategory === cat.id }"
-            (click)="selectCategory(cat.id)"
-            
-          >
-            {{ cat.name }}
-          </button>
-        </div>
-      </div>
-      
-      
-
-      <div>
-        <label class="block text-xs font-medium text-gray-700 mb-1">Descripción</label>
-        <textarea formControlName="description" rows="4"
-          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black resize-none overflow-y-auto max-h-40">
-        </textarea>
-        <div
-          *ngIf="productAddForm.get('description')?.errors && (productAddForm.get('description')?.touched || productAddForm.get('description')?.dirty)"
-          class="text-red-600 text-xs mt-1">
-          <div *ngIf="productAddForm.get('description')?.errors?.['maxlength']">
-            La descripción no puede superar los 300 caracteres.
+            <div *ngIf="showDropdown"
+              class="absolute left-0 w-full mt-1 bg-white border border-gray-400 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+              <button class="w-full text-center py-2 hover:bg-gray-100 text-sm min-h-[30px] text-black"
+                [ngClass]="{ 'bg-gray-200': selectedCategory === null }" (click)="selectCategory(null)">
+                Sin categoría
+              </button>
+              <button *ngFor="let cat of categories"
+                class="w-full text-center px-4 hover:bg-gray-100 text-sm min-h-[30px] text-black line-clamp-2"
+                [ngClass]="{ 'bg-gray-200': selectedCategory === cat.id }" (click)="selectCategory(cat.id)">
+                {{ cat.name }}
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
-      
 
-      <!-- Botón de Agregar Producto -->
-      <button type="submit" [disabled]="productAddForm.invalid || loading"
-      class="!rounded-lg bg-fuchsia-900 text-white py-3 w-full h-12 flex items-center justify-center disabled:bg-gray-300">
+          <!-- Campo: Descripción -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <textarea formControlName="description" rows="4"
+              class="w-full px-4 py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 !text-black resize-none max-h-40"></textarea>
+            <div
+              *ngIf="productAddForm.get('description')?.errors && (productAddForm.get('description')?.touched || productAddForm.get('description')?.dirty)"
+              class="text-red-600 text-xs mt-1">
+              <div *ngIf="productAddForm.get('description')?.errors?.['maxlength']">
+                Máx. 300 caracteres.
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Botón fijo -->
+    <div class="bg-white px-6 py-4 shadow-md">
+      <button type="submit" [disabled]="productAddForm.invalid || loading" (click)="addProduct()"
+        class="rounded-lg bg-fuchsia-900 text-white py-3 w-full h-12 flex items-center justify-center disabled:bg-gray-300">
         <ng-container *ngIf="!loading; else loadingTemplate">Guardar</ng-container>
-        
         <ng-template #loadingTemplate>
           <ion-spinner name="crescent" color="light"></ion-spinner>
         </ng-template>
       </button>
-
-    </form>
+    </div>
   </div>
 </ion-content>
 
+<!-- Popups -->
 <app-popup [title]="popupTitle" [description]="popupDescription" [buttonText]="popupButtonText"
-    [headerColor]="popupHeaderColor" [visible]="showPopup" (onConfirm)="handlePopupAction()"></app-popup>
+  [headerColor]="popupHeaderColor" [visible]="showPopup" (onConfirm)="handlePopupAction()"></app-popup>
 
 <app-loading-overlay [isLoading]="loading" class="z-300"></app-loading-overlay>

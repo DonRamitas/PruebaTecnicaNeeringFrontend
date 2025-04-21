@@ -101,11 +101,8 @@ export class ProductsPage {
       this.infiniteScroll.disabled = true; // <- Detén scroll hasta que termine
     }
   
-    console.log('Loading products, page:', this.currentPage);
-  
     this.productService.searchProducts(this.currentPage, this.searchTerm, this.selectedCategory).subscribe({
       next: (res) => {
-        console.log('API response:', res);
         if (res.data && res.data.length > 0) {
           this.products.push(...res.data);
           this.hasMore = !!res.next_page_url;

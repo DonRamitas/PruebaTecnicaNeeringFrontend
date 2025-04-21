@@ -78,6 +78,7 @@ export class ProductEditPage implements OnInit {
   }
 
   loadProduct(id:number){
+    this.changedCategory=false;
     this.loading = true;
     this.productService.getProduct(id).subscribe({
       next: (response) => {
@@ -89,7 +90,8 @@ export class ProductEditPage implements OnInit {
           price: this.product.price,
           description: this.product.description,
         });
-        this.selectCategory(this.product.category ? this.product.category.id : null);
+        this.selectedCategory = this.product.category ? this.product.category.id : null;
+        this.selectedCategoryName = this.product.category ? this.product.category.name : 'Sin categoría';
         this.imagePreview = response.image
   ? `http://localhost:8000/storage/${response.image}` // ajusta según tu backend
   : null;
@@ -129,7 +131,7 @@ export class ProductEditPage implements OnInit {
       updatedFields.description = formValues.description ?? '';
     }
   
-    if (this.selectedCategory !== this.product?.category?.id) {
+    if (this.changedCategory) {
       updatedFields.category_id = this.selectedCategory;
     }
 
@@ -170,14 +172,9 @@ export class ProductEditPage implements OnInit {
       }
     }
 
-    formData.forEach((value, key) => {
-      console.log(`${key}:`, value);
-    });
-  
     // Enviar al backend
     this.productService.updateProduct(this.productId, formData).subscribe({
       next: (response) => {
-        console.log(response);
         this.loading = false;
         this.openSuccessPopup(response.id, 'Éxito', 'El producto se editó satisfactoriamente.');
       },
@@ -227,10 +224,8 @@ export class ProductEditPage implements OnInit {
     this.popupDescription = description;
     this.popupButtonText = buttonText;
     this.popupHeaderColor = headerColor;
-    console.log("yendose1");
     this.popupAction = () => {
       this.showPopup = false;
-      console.log("yendose2");
       this.router.navigate(['/product-detail', idProduct], {
         queryParams: { fromAddProduct: true },
         replaceUrl: true // Reemplaza el historial para no volver a add
@@ -299,8 +294,10 @@ handlePopupAction() {
   showDropdown = false;
   selectedCategory: number | null = null;
   selectedCategoryName = '';
+  changedCategory:Boolean = false;
 
   selectCategory(id: number | null) {
+    this.changedCategory = true;
     this.selectedCategory = id;
     this.selectedCategoryName =
       this.categories.find(c => c.id === id)?.name || 'Sin categoría';

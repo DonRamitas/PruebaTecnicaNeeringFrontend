@@ -68,7 +68,6 @@ export class CategoryEditPage {
       next: (response) => {
         this.loading = false;
         this.category = response;
-        console.log('loaded category');
         this.categoryEditForm.patchValue({
           name: this.category.name,
         });
@@ -106,7 +105,6 @@ export class CategoryEditPage {
     // Enviar al backend
     this.categoryService.updateCategory(this.category!.id, formData).subscribe({
       next: (response) => {
-        console.log(response);
         this.loading = false;
         this.openSuccessPopup(response.id, 'Éxito', 'La categoría se editó satisfactoriamente.');
       },
