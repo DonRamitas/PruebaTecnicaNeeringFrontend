@@ -1,21 +1,23 @@
+<!-- Pantalla para añadir categoría -->
+
 <!-- Header -->
 <div class="w-full bg-gray-200 shadow px-4 py-4 sticky top-0 z-50 h-20">
   <div class="relative flex items-center justify-center">
-    <!-- Botón a la izquierda -->
+
     <button (click)="goBack()" class="absolute left-0 text-lg text-black">
       <ion-icon name="arrow-back"></ion-icon>
     </button>
 
-    <!-- Título centrado -->
     <h5 class="text-minititle text-black font-bold text-center">
       Agregar categoría
     </h5>
   </div>
 </div>
 
+<!-- Body -->
 <ion-content [fullscreen]="true">
   <div class="relative h-full bg-white px-6 pt-6 pb-32">
-    <!-- Formulario reactivo -->
+    <!-- Formulario para añadir categoría -->
     <form [formGroup]="categoryAddForm" (ngSubmit)="addCategory()" class="space-y-6">
 
       <!-- Nombre -->
@@ -30,12 +32,9 @@
           <div *ngIf="categoryAddForm.get('name')?.errors?.['maxlength']">Máx. 30 caracteres.</div>
         </div>
       </div>
-
-      <!-- Espacio para evitar que el botón tape campos en pantallas pequeñas -->
-      <div class="h-20"></div>
     </form>
 
-    <!-- Botón de Agregar Categoría (pegado abajo) -->
+    <!-- Botón para añadir la categoría ingresada  -->
     <div class="absolute bottom-6 left-6 right-6">
       <button type="submit" [disabled]="categoryAddForm.invalid || loading" (click)="addCategory()"
         class="!rounded-lg bg-fuchsia-900 text-white py-3 w-full h-12 flex items-center justify-center disabled:bg-gray-300">
@@ -49,7 +48,9 @@
   </div>
 </ion-content>
 
-<app-popup [title]="popupTitle" [description]="popupDescription" [buttonText]="popupButtonText"
-  [visible]="showPopup" (onConfirm)="handlePopupAction()"></app-popup>
+<!-- Popup -->
+<app-popup [title]="popupTitle" [description]="popupDescription" [buttonText]="popupButtonText" [visible]="showPopup"
+  (onConfirm)="handlePopupAction()"></app-popup>
 
+<!-- Loading Cover-->
 <app-loading-overlay [isLoading]="loading" class="z-300"></app-loading-overlay>

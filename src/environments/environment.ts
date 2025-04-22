@@ -3,11 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
+  //TODO: cambiar esto según build
   apiUrl: 'http://localhost:8000/api',
+  apiStoragePrefix: 'http://localhost:8000/storage/',
   production: false,
-  headers: {
-    'Authorization': 'Bearer ${token}'
-  }
 };
 
 /*

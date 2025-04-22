@@ -10,6 +10,7 @@ import { Product } from 'src/app/models/product.model';
 import { ChoosePopupComponent } from 'src/app/components/choose-popup/choose-popup.component';
 import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-product-detail',
@@ -48,7 +49,7 @@ export class ProductDetailPage implements OnInit {
   loading: boolean = false;
 
   // Url API storage
-  storagePrefix = 'http://localhost:8000/storage/';
+  storagePrefix = environment.apiStoragePrefix;
 
   // Al cargar el componente recibe el id del producto desde la pantalla anterior
   ngOnInit() {

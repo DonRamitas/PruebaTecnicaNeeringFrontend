@@ -1,9 +1,10 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'app-store',
-  webDir: 'www'
+  appId: 'com.negodev.neeringstore',
+  appName: 'Neering Store',
+  webDir: 'www',
 };
+
 
 export default config;

@@ -1,18 +1,13 @@
-import { Component, OnDestroy, OnInit, HostListener, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule} from '@angular/common';
-import { IonicModule, ToastController, Platform } from '@ionic/angular';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Storage } from '@ionic/storage-angular';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { arrowBack, cloudUploadOutline, chevronDownOutline } from 'ionicons/icons';
+import { arrowBack } from 'ionicons/icons';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
-import { App as CapacitorApp } from '@capacitor/app';
-import { AuthService } from 'src/app/services/auth.service';
 import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
-import { ProductService } from 'src/app/services/product.service';
 import { CategoryService } from 'src/app/services/category.service';
-import { Category } from 'src/app/models/category.model';
 
 @Component({
   selector: 'app-category-add',
@@ -28,57 +23,65 @@ import { Category } from 'src/app/models/category.model';
   styleUrls: ['./category-add.page.scss'],
 
 })
+
 export class CategoryAddPage {
-
-  categoryAddForm: FormGroup;
-
-  loading = false;
 
   constructor(
     private fb: FormBuilder,
-    private toastCtrl: ToastController,
     private router: Router,
-    private platform: Platform,
-    private authService: AuthService,
-    private productService: ProductService,
+
+    // Servicio para hacerle POST a una categoría
     private categoryService: CategoryService
 
   ) {
+
+    // Validador para el nombre de la categoría
     this.categoryAddForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(30)]],
     });
 
     addIcons({ arrowBack });
   }
+
+  // Formulario para añadir categoría
+  categoryAddForm: FormGroup;
+
+  // Booleano que indica cuando se está cargando un recurso
+  loading = false;
+
+  // Agregar la categoría ingresada
   async addCategory() {
-    if (this.categoryAddForm.invalid) {
-      this.openErrorPopup('Atención', 'Formulario inválido');
+
+    // Verifica que el nombre ingresado para la categoría sea válido
+    if (this.categoryAddForm.invalid || this.categoryAddForm.value.name.trim().length===0) {
+      this.openErrorPopup('Atención', 'Ingresa un nombre válido');
       return;
     }
-  
+
     this.loading = true;
 
+    // Realiza el POST a través del servicio de cateogorías
     this.categoryService.addCategory(this.categoryAddForm.value).subscribe({
-      next: (response) => {
+      next: () => {
         this.loading = false;
-        this.openSuccessPopup(response.id,'Éxito', 'La categoría se añadió satisfactoriamente.');
+        this.openSuccessPopup('Éxito', 'La categoría se añadió satisfactoriamente.');
       },
-      error: () => {
-        this.openErrorPopup('Error', 'Error al subir categoría');
+      error: (err) => {
+        this.openErrorPopup('Error', 'Error al subir categoría. Código: ' + err);
         this.loading = false;
       }
     });
   }
 
+  // Pará la gestión del popup
   showPopup = false;
   popupTitle = '';
   popupDescription = '';
   popupButtonText = '';
 
-  // Define el tipo de acción que quieres ejecutar
   popupAction: () => void = () => { this.showPopup = false; }; // por defecto solo se cierra
 
-  // Método para abrir un popup simple
+  // Abre un popup de error
   openErrorPopup(
     title: string = 'Atención',
     description: string = 'Algo pasó',
@@ -93,9 +96,8 @@ export class CategoryAddPage {
     this.showPopup = true;
   }
 
-  // Método para abrir un popup que redirige
+  // Abre un popup que redirige a las categorías cuando es creada una nueva
   openSuccessPopup(
-    idProduct: number | null = null,
     title: string = 'Atención',
     description: string = 'Serás redirigido',
     buttonText: string = 'Aceptar'
@@ -107,22 +109,18 @@ export class CategoryAddPage {
       this.showPopup = false;
       this.router.navigate(['/categories'], {
         queryParams: { shouldRefresh: true },
-        replaceUrl: true // Reemplaza el historial para no volver a add
+        replaceUrl: true
       });
     };
     this.showPopup = true;
   }
 
-// Acción al presionar botón del popup
-handlePopupAction() {
-  this.popupAction(); // Ejecuta lo que hayas definido
-}
-
-  goBack(){
-    this.router.navigateByUrl('/categories', {replaceUrl: true});
+  handlePopupAction() {
+    this.popupAction();
   }
 
-  
-
+  goBack() {
+    this.router.navigateByUrl('/categories', { replaceUrl: true });
+  }
 
 }

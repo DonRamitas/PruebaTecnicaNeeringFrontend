@@ -17,6 +17,7 @@ import { SidemenuComponent } from 'src/app/components/side-menu/side-menu.compon
 import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
 import { first } from 'rxjs';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-products',
@@ -70,8 +71,7 @@ export class ProductsPage {
   showDropdown: boolean = false;
 
   // Url de la API Storage
-  // TODO: Cambiar esto según la API
-  storagePrefix = 'http://localhost:8000/storage/';
+  storagePrefix = environment.apiStoragePrefix;
 
   // Indica si se está desplegando el Side menu
   isSideMenuOpen = false;
@@ -117,7 +117,7 @@ export class ProductsPage {
         this.categories = [{ id: 0, name: 'Todas las categorías' }, ...res];
       },
       error: (err) => {
-        this.openPopup('Error', 'No se pudieron cargar las categorías');
+        this.openPopup('Error', 'No se pudieron cargar las categorías. Código: '+err);
       }
     });
   }

@@ -59,6 +59,7 @@
               <div *ngIf="productAddForm.get('price')?.errors?.['required']">El precio es inválido.</div>
               <div *ngIf="productAddForm.get('price')?.errors?.['max']">Máx. $100.000.000 CLP.</div>
               <div *ngIf="productAddForm.get('price')?.errors?.['min']">Debe ser mayor a 0.</div>
+              <div *ngIf="productAddForm.get('price')?.errors?.['pattern']">El precio debe ser un número entero.</div>
             </div>
           </div>
 

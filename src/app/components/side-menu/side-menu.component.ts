@@ -34,6 +34,9 @@ export class SidemenuComponent implements OnInit {
     this.authService.me().subscribe({
       next: (response) => {
         this.username = response.name;
+      },
+      error: () => {
+        this.username = 'Usuario Neering';
       }
     });
   }

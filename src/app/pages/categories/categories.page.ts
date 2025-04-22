@@ -97,22 +97,27 @@ export class CategoriesPage {
 
   // Carga las categorías desde la API y las despliega
   async loadCategories(event?: any) {
-    if (this.loading || !this.hasMore) return;
-
+    if (this.loading || !this.hasMore) {
+      if (event) event.target.complete(); // Completar de todos modos para evitar cuelgues
+      return;
+    }
+  
     this.loading = true;
-
+  
     this.categoryService.searchCategories(this.currentPage, this.searchTerm).subscribe({
       next: (res) => {
         this.categories.push(...res.data);
         this.hasMore = !!res.next_page_url;
         this.currentPage++;
         this.loading = false;
-        if (event) event.target.complete();
+  
+        if (event) event.target.complete(); // Aquí también
       },
       error: (err) => {
         this.openSimplePopup('Error', 'No se pudieron cargar las categorías. Código: ' + err);
         this.loading = false;
-        if (event) event.target.complete();
+  
+        if (event) event.target.complete(); // Y aquí también
       }
     });
   }

@@ -1,8 +1,7 @@
-import { Component, OnInit, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
-import { Storage } from '@ionic/storage-angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { arrowBack, cloudUploadOutline, chevronDownOutline, closeCircleOutline } from 'ionicons/icons';
@@ -12,6 +11,7 @@ import { ProductService } from 'src/app/services/product.service';
 import { CategoryService } from 'src/app/services/category.service';
 import { Category } from 'src/app/models/category.model';
 import { Product } from 'src/app/models/product.model';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-product-edit',
@@ -27,11 +27,10 @@ import { Product } from 'src/app/models/product.model';
   styleUrls: ['./product-edit.page.scss'],
 
 })
-export class ProductEditPage implements OnInit {
+export class ProductEditPage {
 
   constructor(
     private fb: FormBuilder,
-    private storage: Storage,
     private router: Router,
     private route: ActivatedRoute,
 
@@ -47,7 +46,8 @@ export class ProductEditPage implements OnInit {
       price: [null, [
         Validators.required,
         Validators.max(100000000),
-        Validators.min(1)
+        Validators.min(1),
+        Validators.pattern(/^[0-9]+$/)
       ]],
       category_id: [null],
       description: [null, [Validators.maxLength(300)]],
@@ -68,7 +68,7 @@ export class ProductEditPage implements OnInit {
   loading = false;
 
   // Url del storage de la API
-  storagePrefix = 'http://localhost:8000/storage/'; // o donde tengas tus imágenes
+  storagePrefix = environment.apiStoragePrefix; // o donde tengas tus imágenes
 
   // Recibe el ID del producto a editar
   productId: number = 0;
@@ -92,22 +92,13 @@ export class ProductEditPage implements OnInit {
   // Booleano que indica si se cambió la categoría del producto
   changedCategory: Boolean = false;
 
-  // Al iniciar carga las categorías y recibe el id del producto
-  ngOnInit() {
+  // Obtiene el id del producto a editar desde la pantalla anterior y lo carga junto a las categorías
+  ionViewWillEnter() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadProduct(+id);
       this.productId = +id;
     }
-  }
-
-  // Se utiliza el storage para trabajar con imagenes
-  async ionViewDidEnter() {
-    await this.storage.create();
-  }
-
-  // Carga las categorías al entrar a la página
-  ionViewWillEnter() {
     this.loadCategories();
   }
 
@@ -142,7 +133,7 @@ export class ProductEditPage implements OnInit {
   async editProduct() {
 
     // Si el formulario es inválido, mostrar error
-    if (this.productEditForm.invalid) {
+    if (this.productEditForm.invalid || this.productEditForm.value.name.trim().length === 0) {
       this.openErrorPopup('Atención', 'Formulario inválido');
       return;
     }
@@ -273,10 +264,16 @@ export class ProductEditPage implements OnInit {
 
   // Carga las categorías desde la API
   loadCategories() {
-    this.categoryService.getAllCategories().subscribe((res) => {
-      this.categories = [...res];
+    this.categoryService.getAllCategories().subscribe({
+      next: (res) => {
+        this.categories = [...res];
+      },
+      error: (err) => {
+        this.openErrorPopup('Error', 'No se pudieron cargar las categorías. Código: ' + err);
+      }
     });
   }
+  
 
   // Selecciona una categoría y la marca en el dropdown
   selectCategory(id: number | null) {

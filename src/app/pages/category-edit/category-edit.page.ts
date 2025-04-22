@@ -1,16 +1,12 @@
-import { Component, OnDestroy, OnInit, HostListener, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule} from '@angular/common';
-import { IonicModule, ToastController, Platform } from '@ionic/angular';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Storage } from '@ionic/storage-angular';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { arrowBack, cloudUploadOutline, chevronDownOutline } from 'ionicons/icons';
+import { arrowBack } from 'ionicons/icons';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
-import { App as CapacitorApp } from '@capacitor/app';
-import { AuthService } from 'src/app/services/auth.service';
 import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
-import { ProductService } from 'src/app/services/product.service';
 import { CategoryService } from 'src/app/services/category.service';
 import { Category } from 'src/app/models/category.model';
 
@@ -28,23 +24,20 @@ import { Category } from 'src/app/models/category.model';
   styleUrls: ['./category-edit.page.scss'],
 
 })
+
 export class CategoryEditPage {
-
-  categoryEditForm: FormGroup;
-
-  loading = false;
 
   constructor(
     private fb: FormBuilder,
-    private toastCtrl: ToastController,
     private router: Router,
     private route: ActivatedRoute,
-    private platform: Platform,
-    private authService: AuthService,
-    private productService: ProductService,
+
+    // Utiliza el servicio categoría para editar
     private categoryService: CategoryService
 
   ) {
+
+    // Validadores del formulario de edición de categoría
     this.categoryEditForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(30)]],
     });
@@ -52,17 +45,25 @@ export class CategoryEditPage {
     addIcons({ arrowBack });
   }
 
-  ngOnInit() {
-    
+  // Formulario de edición de categoría
+  categoryEditForm: FormGroup;
+
+  // Booleano que indica cuando se está cargando un recurso
+  loading = false;
+
+  // Almacena los datos de la categoría a editar
+  category: Category | null = null;
+
+  // Obtiene el id de la categoría a editar desde la pantalla anterior y la carga
+  ionViewWillEnter() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadCategory(+id);
     }
   }
 
-  category: Category | null = null;
-
-  loadCategory(id:number){
+  // Carga los datos de la categoría a editar
+  loadCategory(id: number) {
     this.loading = true;
     this.categoryService.getCategory(id).subscribe({
       next: (response) => {
@@ -72,61 +73,62 @@ export class CategoryEditPage {
           name: this.category.name,
         });
       },
-      error: () => {
-        this.openErrorPopup('Error', 'Error al cargar categoría');
+      error: (err) => {
+        this.openErrorPopup('Error', 'Error al cargar los datos de la categoría. Código: ', err);
         this.loading = false;
       }
     });
   }
 
+  // Envía los datos editados al backend
   async editCategory() {
-    if (this.categoryEditForm.invalid) {
-      this.openErrorPopup('Atención', 'Formulario inválido');
+
+    // Detecta primero si el formulario de edición es válido
+    if (this.categoryEditForm.invalid || this.categoryEditForm.value.name.trim().length === 0) {
+      this.openErrorPopup('Atención', 'Ingresa un nombre válido');
       return;
     }
-  
+
     this.loading = true;
-  
+
     const formValues = this.categoryEditForm.value;
-  
-    // Comparar campos modificados
+
+    // Revisa si hay diferencia entre el nombre antiguo y el actual
     if (formValues.name === this.category?.name) {
       this.openErrorPopup('Sin cambios', 'No realizaste ningún cambio.');
       this.loading = false;
       return;
     }
-  
+
+    // Arma un FormData con los datos necesarios para el PUT
     const formData = new FormData();
 
-    formData.append('_method','PUT');
+    formData.append('_method', 'PUT');
 
     formData.append('name', formValues.name);
 
-    // Enviar al backend
+    // Utiliza el servicio de categorías para hacer el PUT
     this.categoryService.updateCategory(this.category!.id, formData).subscribe({
-      next: (response) => {
+      next: () => {
         this.loading = false;
-        this.openSuccessPopup(response.id, 'Éxito', 'La categoría se editó satisfactoriamente.');
+        this.openSuccessPopup('Éxito', 'La categoría se editó satisfactoriamente.');
       },
       error: (err) => {
-        console.error('Error en update:', err);
-        this.openErrorPopup('Error', 'Error al editar categoría');
+        this.openErrorPopup('Error', 'Error al editar categoría. Código: ' + err);
         this.loading = false;
       }
     });
   }
 
-  //TODO: poner en ionview enter lo de load category
-
+  // Para gestionar el popup
   showPopup = false;
   popupTitle = '';
   popupDescription = '';
   popupButtonText = '';
 
-  // Define el tipo de acción que quieres ejecutar
-  popupAction: () => void = () => { this.showPopup = false; }; // por defecto solo se cierra
+  popupAction: () => void = () => { this.showPopup = false; };
 
-  // Método para abrir un popup simple
+  // Abre un popup de error
   openErrorPopup(
     title: string = 'Atención',
     description: string = 'Algo pasó',
@@ -141,11 +143,10 @@ export class CategoryEditPage {
     this.showPopup = true;
   }
 
-  // Método para abrir un popup que redirige
+  // Abre un popup que devuelve a la pantalla de categorías
   openSuccessPopup(
-    idProduct: number | null = null,
-    title: string = 'Atención',
-    description: string = 'Serás redirigido',
+    title: string = 'Éxito',
+    description: string = 'La categoría se editó satisfactoriamente',
     buttonText: string = 'Aceptar'
   ) {
     this.popupTitle = title;
@@ -155,22 +156,22 @@ export class CategoryEditPage {
       this.showPopup = false;
       this.router.navigate(['/categories'], {
         queryParams: { shouldRefresh: true },
-        replaceUrl: true // Reemplaza el historial para no volver a add
+        replaceUrl: true
       });
     };
     this.showPopup = true;
   }
 
-// Acción al presionar botón del popup
-handlePopupAction() {
-  this.popupAction(); // Ejecuta lo que hayas definido
-}
-
-  goBack(){
-    this.router.navigateByUrl('/categories', {replaceUrl: true});
+  handlePopupAction() {
+    this.popupAction();
   }
 
-  
+  // Vuelve a la pantalla de categorías sin editar nada
+  goBack() {
+    this.router.navigateByUrl('/categories', { replaceUrl: true });
+  }
+
+
 
 
 }

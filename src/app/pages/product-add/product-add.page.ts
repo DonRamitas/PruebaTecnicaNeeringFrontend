@@ -2,7 +2,6 @@ import { Component, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
-import { Storage } from '@ionic/storage-angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { arrowBack, cloudUploadOutline, chevronDownOutline, closeCircleOutline } from 'ionicons/icons';
@@ -30,7 +29,6 @@ export class ProductAddPage {
 
   constructor(
     private fb: FormBuilder,
-    private storage: Storage,
     private router: Router,
 
     // Servicios para obtener los datos desde API
@@ -45,7 +43,8 @@ export class ProductAddPage {
       price: [null, [
         Validators.required,
         Validators.max(100000000),
-        Validators.min(1)
+        Validators.min(1),
+        Validators.pattern(/^[0-9]+$/)
       ]],
       category_id: [null],
       description: [null, [Validators.maxLength(300)]],
@@ -75,11 +74,6 @@ export class ProductAddPage {
   selectedCategory: number | null = null;
   selectedCategoryName = '';
 
-  // Para almacenar imagenes
-  async ionViewDidEnter() {
-    await this.storage.create();
-  }
-
   // Carga las categorías al entrar a la página
   ionViewWillEnter() {
     this.loadCategories();
@@ -93,7 +87,7 @@ export class ProductAddPage {
         this.categories = [...res];
       },
       error: (err) => {
-        this.openErrorPopup('Error', 'No se pudieron cargar las categorías');
+        this.openErrorPopup('Error', 'No se pudieron cargar las categorías. Código: '+err);
       }
     });
   }
@@ -102,8 +96,8 @@ export class ProductAddPage {
   async addProduct() {
 
     // Verifica que el formulario sea válido
-    if (this.productAddForm.invalid) {
-      this.openErrorPopup('Atención', 'Formulario inválido');
+    if (this.productAddForm.invalid || this.productAddForm.value.name.trim().length === 0) {
+      this.openErrorPopup('Atención', 'Ingresa datos válidos para el producto');
       return;
     }
 

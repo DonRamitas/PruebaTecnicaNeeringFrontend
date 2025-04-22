@@ -3,7 +3,7 @@
 <!-- Header -->
 <div class="w-full bg-white shadow px-4 py-3 sticky top-0 z-50">
   <div class="flex items-center justify-between">
-    <button (click)="this.isSideMenuOpen = true" class="text-2xl text-black">
+    <button (click)="isSideMenuOpen = true" class="text-2xl text-black">
       <ion-icon name="menu"></ion-icon>
     </button>
     <h1 class="text-title text-black">Categorías</h1>
@@ -68,7 +68,7 @@
   </div>
 
   <!-- Scroll infinito -->
-  <ion-infinite-scroll class="text-black" threshold="100px" (ionInfinite)="loadCategories($event)" *ngIf="hasMore">
+  <ion-infinite-scroll #ionScroll class="text-black" threshold="100px" (ionInfinite)="loadCategories($event)" *ngIf="hasMore">
     <ion-infinite-scroll-content loadingSpinner="crescent" class="infinite-scroll-custom">
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
@@ -84,8 +84,8 @@
 </ion-content>
 
 <!-- Side Menu -->
-<app-sidemenu [isOpen]="isSideMenuOpen" (closeSidemenu)="this.isSideMenuOpen = false"
-  (goCategories)="this.isSideMenuOpen = false" (logout)="logout()" (goProducts)="goProducts()"
+<app-sidemenu [isOpen]="isSideMenuOpen" (closeSidemenu)="isSideMenuOpen = false"
+  (goCategories)="isSideMenuOpen = false" (logout)="logout()" (goProducts)="goProducts()"
   class="z-200"></app-sidemenu>
 
 <!-- Choose Popup para las eliminaciones-->
