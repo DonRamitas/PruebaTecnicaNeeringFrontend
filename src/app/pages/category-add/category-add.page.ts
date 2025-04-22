@@ -82,7 +82,7 @@ export class CategoryAddPage {
   openErrorPopup(
     title: string = 'Atención',
     description: string = 'Algo pasó',
-    buttonText: string = 'OK'
+    buttonText: string = 'Aceptar'
   ) {
     this.popupTitle = title;
     this.popupDescription = description;
@@ -98,7 +98,7 @@ export class CategoryAddPage {
     idProduct: number | null = null,
     title: string = 'Atención',
     description: string = 'Serás redirigido',
-    buttonText: string = 'OK'
+    buttonText: string = 'Aceptar'
   ) {
     this.popupTitle = title;
     this.popupDescription = description;

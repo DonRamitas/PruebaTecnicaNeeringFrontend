@@ -15,6 +15,10 @@
 /* Importa Tailwind CSS */
 @import "tailwindcss";
 
+ion-content {
+  --background: #ffffff !important;
+}
+
 /* Define el tema personalizado con Inter como fuente sans */
 @theme {
   --font-primary: "Inter", sans-serif;

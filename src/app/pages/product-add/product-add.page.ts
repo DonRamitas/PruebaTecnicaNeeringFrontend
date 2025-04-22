@@ -148,14 +148,14 @@ export class ProductAddPage {
   popupDescription = '';
   popupButtonText = '';
 
-  // Define el tipo de acción que quieres ejecutar
-  popupAction: () => void = () => { this.showPopup = false; }; // por defecto solo se cierra
+  // Define la acción del popup al presionar su botón único
+  popupAction: () => void = () => { this.showPopup = false; }; // Por defecto solo se cierra
 
   // Método para abrir un popup de error
   openErrorPopup(
     title: string = 'Atención',
     description: string = 'Algo pasó',
-    buttonText: string = 'OK'
+    buttonText: string = 'Aceptar'
   ) {
     this.popupTitle = title;
     this.popupDescription = description;

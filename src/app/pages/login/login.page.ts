@@ -149,7 +149,7 @@ export class LoginPage {
   openPopup(
     title: string = 'Atención',
     description: string = 'Algo pasó',
-    buttonText: string = 'OK'
+    buttonText: string = 'Aceptar'
   ) {
     this.showPopup = false;
 

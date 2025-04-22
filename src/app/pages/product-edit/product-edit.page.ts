@@ -1,14 +1,12 @@
-import { Component, OnDestroy, OnInit, HostListener, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule} from '@angular/common';
-import { IonicModule, ToastController, Platform } from '@ionic/angular';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Component, OnInit, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { Storage } from '@ionic/storage-angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { arrowBack, cloudUploadOutline, chevronDownOutline, closeCircleOutline } from 'ionicons/icons';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
-import { App as CapacitorApp } from '@capacitor/app';
-import { AuthService } from 'src/app/services/auth.service';
 import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
 import { ProductService } from 'src/app/services/product.service';
 import { CategoryService } from 'src/app/services/category.service';
@@ -31,24 +29,19 @@ import { Product } from 'src/app/models/product.model';
 })
 export class ProductEditPage implements OnInit {
 
-  @ViewChild('dropdownRef') dropdownRef!: ElementRef;
-  @ViewChild('dropdownTrigger') dropdownTriggerRef!: ElementRef;
-
-  productEditForm: FormGroup;
-
-  loading = false;
-
-  storagePrefix = 'http://localhost:8000/storage/'; // o donde tengas tus imágenes
-
   constructor(
     private fb: FormBuilder,
     private storage: Storage,
     private router: Router,
     private route: ActivatedRoute,
+
+    // Servicios utilizados para comunicarse con la API
     private productService: ProductService,
     private categoryService: CategoryService
 
   ) {
+
+    // Validadores del formulario de edición de producto
     this.productEditForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
       price: [null, [
@@ -56,7 +49,7 @@ export class ProductEditPage implements OnInit {
         Validators.max(100000000),
         Validators.min(1)
       ]],
-      category_id: [null], // se asume que 'null' es "sin categoría"
+      category_id: [null],
       description: [null, [Validators.maxLength(300)]],
       image: [null, [this.validateImage]]
     });
@@ -64,12 +57,43 @@ export class ProductEditPage implements OnInit {
     addIcons({ arrowBack, cloudUploadOutline, chevronDownOutline, closeCircleOutline });
   }
 
-  productId:number = 0;
-  product:Product | null = null;
-  changedImage:Boolean = false;
+  // Para enlazar con elementos del HTML
+  @ViewChild('dropdownRef') dropdownRef!: ElementRef;
+  @ViewChild('dropdownTrigger') dropdownTriggerRef!: ElementRef;
 
+  // Formulario de edición de producto
+  productEditForm: FormGroup;
+
+  // Booleano que indica si se está cargando algún recurso
+  loading = false;
+
+  // Url del storage de la API
+  storagePrefix = 'http://localhost:8000/storage/'; // o donde tengas tus imágenes
+
+  // Recibe el ID del producto a editar
+  productId: number = 0;
+
+  // Almacena los datos del producto a editar
+  product: Product | null = null;
+
+  // Indica si se cambió la imagen del producto en la edición
+  changedImage: Boolean = false;
+
+  // Almacena las categorías obtenidas de la API
+  categories: Category[] = [];
+
+  // Indica si se está mostrando el dropdown
+  showDropdown = false;
+
+  // Almacena la categoría seleccionada para el producto editado
+  selectedCategory: number | null = null;
+  selectedCategoryName = '';
+
+  // Booleano que indica si se cambió la categoría del producto
+  changedCategory: Boolean = false;
+
+  // Al iniciar carga las categorías y recibe el id del producto
   ngOnInit() {
-    this.loadCategories();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadProduct(+id);
@@ -77,8 +101,19 @@ export class ProductEditPage implements OnInit {
     }
   }
 
-  loadProduct(id:number){
-    this.changedCategory=false;
+  // Se utiliza el storage para trabajar con imagenes
+  async ionViewDidEnter() {
+    await this.storage.create();
+  }
+
+  // Carga las categorías al entrar a la página
+  ionViewWillEnter() {
+    this.loadCategories();
+  }
+
+  // Carga los datos del producto en el formulario de edición
+  loadProduct(id: number) {
+    this.changedCategory = false;
     this.loading = true;
     this.productService.getProduct(id).subscribe({
       next: (response) => {
@@ -93,70 +128,66 @@ export class ProductEditPage implements OnInit {
         this.selectedCategory = this.product.category ? this.product.category.id : null;
         this.selectedCategoryName = this.product.category ? this.product.category.name : 'Sin categoría';
         this.imagePreview = response.image
-  ? `http://localhost:8000/storage/${response.image}` // ajusta según tu backend
-  : null;
+          ? `${this.storagePrefix}${response.image}`
+          : null;
       },
-      error: () => {
-        this.openErrorPopup('Error', 'Error al subir producto');
+      error: (err) => {
+        this.openErrorPopup('Error', 'No se pudieron cargar los datos del producto. Código: ' + err);
         this.loading = false;
       }
     });
   }
 
-  async ionViewDidEnter() {
-    await this.storage.create();
-  }
-
+  // Método que valida y aplica la modificación del producto
   async editProduct() {
+
+    // Si el formulario es inválido, mostrar error
     if (this.productEditForm.invalid) {
       this.openErrorPopup('Atención', 'Formulario inválido');
       return;
     }
-  
+
     this.loading = true;
-  
+
+    // Toma los valores del formulario y los verifica cuales cambiaron de valor
     const formValues = this.productEditForm.value;
     const updatedFields: any = {};
-  
+
     // Comparar campos modificados
     if (formValues.name !== this.product?.name) {
       updatedFields.name = formValues.name;
     }
-  
+
     if (+formValues.price !== +this.product!.price) {
       updatedFields.price = formValues.price;
     }
-  
+
     if (formValues.description !== this.product?.description) {
       updatedFields.description = formValues.description ?? '';
     }
-  
+
     if (this.changedCategory) {
       updatedFields.category_id = this.selectedCategory;
     }
 
-    if (this.changedImage) {
-      updatedFields.image = this.selectedFile;
-    }
-    
-  
     // Si no hay cambios, mostrar popup
-    if (Object.keys(updatedFields).length === 0 && !this.selectedFile) {
-      this.openErrorPopup('Sin cambios', 'No realizaste ningún cambio.');
+    if (Object.keys(updatedFields).length === 0 && !this.changedImage) {
+      this.openErrorPopup('Sin cambios', 'No realizaste ningún cambio en el producto.');
       this.loading = false;
       return;
     }
-  
+
+    // Si pasa las validaciones, construir un FormData con los datos a actualizar
     const formData = new FormData();
 
-    formData.append('_method','PUT');
-  
+    formData.append('_method', 'PUT');
+
     const nullableFields = ['category_id', 'description'];
 
     for (const key in updatedFields) {
       const value = updatedFields[key];
 
-      // Si es uno de los campos que pueden ser null, permite string vacío
+      // Permite actualizar datos a null si el usuario así lo quiso
       if (nullableFields.includes(key)) {
         formData.append(key, value === null ? '' : value.toString());
       } else if (value !== null && value !== undefined) {
@@ -164,41 +195,42 @@ export class ProductEditPage implements OnInit {
       }
     }
 
-    if(this.changedImage){
+    // Cambia o quita la imagen
+    if (this.changedImage) {
       if (this.selectedFile) {
         formData.append('image', this.selectedFile);
-      }else{
-        formData.append('remove_image', 'true'); // <- clave para decirle al backend "elimínala"
+      } else {
+        formData.append('remove_image', 'true');
       }
     }
 
-    // Enviar al backend
+    // Envía el formdata como un PUT al servicio de producto
     this.productService.updateProduct(this.productId, formData).subscribe({
       next: (response) => {
         this.loading = false;
         this.openSuccessPopup(response.id, 'Éxito', 'El producto se editó satisfactoriamente.');
       },
       error: (err) => {
-        console.error('Error en update:', err);
-        this.openErrorPopup('Error', 'Error al editar producto');
+        this.openErrorPopup('Error', 'No se pudo editar el producto. Código: ' + err);
         this.loading = false;
       }
     });
   }
 
+  // Gestiona el popup
   showPopup = false;
   popupTitle = '';
   popupDescription = '';
   popupButtonText = '';
 
-  // Define el tipo de acción que quieres ejecutar
-  popupAction: () => void = () => { this.showPopup = false; }; // por defecto solo se cierra
+  // Define la acción del popup al presionar su botón
+  popupAction: () => void = () => { this.showPopup = false; }; // Por defecto se cierra
 
-  // Método para abrir un popup simple
+  // Método para abrir un popup de error
   openErrorPopup(
     title: string = 'Atención',
     description: string = 'Algo pasó',
-    buttonText: string = 'OK'
+    buttonText: string = 'Aceptar'
   ) {
     this.popupTitle = title;
     this.popupDescription = description;
@@ -209,12 +241,12 @@ export class ProductEditPage implements OnInit {
     this.showPopup = true;
   }
 
-  // Método para abrir un popup que redirige
+  // Método para abrir un popup que redirige al detalle del producto editado
   openSuccessPopup(
     idProduct: number | null = null,
     title: string = 'Atención',
     description: string = 'Serás redirigido',
-    buttonText: string = 'OK'
+    buttonText: string = 'Aceptar'
   ) {
     this.popupTitle = title;
     this.popupDescription = description;
@@ -229,77 +261,34 @@ export class ProductEditPage implements OnInit {
     this.showPopup = true;
   }
 
-// Acción al presionar botón del popup
-handlePopupAction() {
-  this.popupAction(); // Ejecuta lo que hayas definido
-}
-
-  validateImage(control: AbstractControl): { [key: string]: any } | null {
-    const file = control.value;
-    if (!file) return null;
-  
-    if (file.size > 10 * 1024 * 1024) { // 10MB
-      return { maxSize: true };
-    }
-  
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      return { invalidType: true };
-    }
-  
-    return null;
+  // Acción al presionar botón del popup
+  handlePopupAction() {
+    this.popupAction();
   }
 
-  goBack(){
-    this.router.navigateByUrl('/product-detail/'+this.productId, {replaceUrl: true});
+  // Vuelve al detalle del producto sin editar nada
+  goBack() {
+    this.router.navigateByUrl('/product-detail/' + this.productId, { replaceUrl: true });
   }
 
-  ionViewWillEnter() {
-    this.loadCategories();
-  }
-
-  categories: Category[] = [];
-
+  // Carga las categorías desde la API
   loadCategories() {
     this.categoryService.getAllCategories().subscribe((res) => {
       this.categories = [...res];
     });
   }
 
-  preventLeadingZero(event: KeyboardEvent) {
-    const input = event.target as HTMLInputElement;
-    
-    // Si el campo está vacío y se presiona 0, bloquear
-    if (input.value.length === 0 && event.key === '0') {
-      event.preventDefault();
-    }
-  }
-  
-  cleanLeadingZeros(event: Event) {
-    const input = event.target as HTMLInputElement;
-    let value = input.value;
-  
-    // Si se pegaron ceros tipo "0005", limpiarlos
-    if (/^0\d+/.test(value)) {
-      input.value = value.replace(/^0+/, '');
-      this.productEditForm.get('price')?.setValue(input.value);
-    }
-  }
-
-  showDropdown = false;
-  selectedCategory: number | null = null;
-  selectedCategoryName = '';
-  changedCategory:Boolean = false;
-
+  // Selecciona una categoría y la marca en el dropdown
   selectCategory(id: number | null) {
     this.changedCategory = true;
     this.selectedCategory = id;
     this.selectedCategoryName =
       this.categories.find(c => c.id === id)?.name || 'Sin categoría';
     this.showDropdown = false;
-    
+
   }
 
+  // Escucha las pulsaciones fuera del dropdown y lo cierra en consecuencia
   @HostListener('document:click', ['$event'])
   onClickOutside(event: MouseEvent) {
     const clickedInsideDropdown = this.dropdownRef?.nativeElement.contains(event.target);
@@ -310,14 +299,11 @@ handlePopupAction() {
     }
   }
 
-  toggleDropdown() {
-    this.showDropdown = !this.showDropdown;
-  }
-
+  // Almacenan el preview e imagen elegida para el producto editado
   selectedFile: File | null = null;
-
   imagePreview: string | ArrayBuffer | null = null;
 
+  // Selecciona una imagen para el producto editado
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -349,13 +335,52 @@ handlePopupAction() {
     }
   }
 
+  // Quita la imagen del producto
   removeImage(event: Event) {
     event.stopPropagation(); // evita que se dispare el click del contenedor
     this.imagePreview = null;
-    this.selectedFile=null;
+    this.selectedFile = null;
     this.changedImage = true;
     this.productEditForm.get('image')?.reset();
   }
 
+  // Valida que la imagen subida cumpla ciertas validaciones
+  // Que no pese más de 10MB y que sea jpg, png o webp
+  validateImage(control: AbstractControl): { [key: string]: any } | null {
+    const file = control.value;
+    if (!file) return null;
+
+    if (file.size > 10 * 1024 * 1024) { // 10MB
+      return { maxSize: true };
+    }
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      return { invalidType: true };
+    }
+
+    return null;
+  }
+
+  // Validación que no permite poner ceros a la izquierda en el precio del producto
+  preventLeadingZero(event: KeyboardEvent) {
+    const input = event.target as HTMLInputElement;
+
+    // Si el campo está vacío y se presiona 0, bloquear
+    if (input.value.length === 0 && event.key === '0') {
+      event.preventDefault();
+    }
+  }
+
+  cleanLeadingZeros(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let value = input.value;
+
+    // Si se pegaron ceros tipo "0005", limpiarlos
+    if (/^0\d+/.test(value)) {
+      input.value = value.replace(/^0+/, '');
+      this.productEditForm.get('price')?.setValue(input.value);
+    }
+  }
 
 }
