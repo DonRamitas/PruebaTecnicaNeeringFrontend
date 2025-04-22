@@ -47,15 +47,15 @@ export class ProductDetailPage implements OnInit {
 
   ionViewWillEnter(){
     this.route.queryParams.subscribe(params => {
-      this.fromAddProduct = params['fromAddProduct'] === 'true';
+      this.shouldRefresh = params['shouldRefresh'] === 'true';
     });
 
-    if(this.fromAddProduct){
+    if(this.shouldRefresh){
       this.loadProduct(this.productId);
     }
   }
 
-  fromAddProduct:boolean = false;
+  shouldRefresh:boolean = false;
 
   loading:boolean = false;
   
@@ -99,9 +99,9 @@ export class ProductDetailPage implements OnInit {
   }
 
   goBack() {
-    if (this.fromAddProduct) {
+    if (this.shouldRefresh) {
       this.router.navigate(['/products'], {
-        queryParams: { fromAddProduct: true },
+        queryParams: { shouldRefresh: true },
         replaceUrl: true // ← para no volver al detalle otra vez
       });
     } else {
@@ -127,7 +127,7 @@ export class ProductDetailPage implements OnInit {
       next: () => {
         this.loading = false;
         this.router.navigate(['/products'], {
-          queryParams: { fromAddProduct: true },
+          queryParams: { shouldRefresh: true },
           replaceUrl: true // ← para no volver al detalle otra vez
         });
       },

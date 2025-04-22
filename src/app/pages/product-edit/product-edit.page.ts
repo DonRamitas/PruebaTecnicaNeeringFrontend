@@ -222,7 +222,7 @@ export class ProductEditPage implements OnInit {
     this.popupAction = () => {
       this.showPopup = false;
       this.router.navigate(['/product-detail', idProduct], {
-        queryParams: { fromAddProduct: true },
+        queryParams: { shouldRefresh: true },
         replaceUrl: true // Reemplaza el historial para no volver a add
       });
     };

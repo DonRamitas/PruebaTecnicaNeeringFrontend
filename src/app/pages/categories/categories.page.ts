@@ -25,9 +25,11 @@ import { PopupComponent } from 'src/app/components/popup/popup.component';
 export class CategoriesPage {
 
   constructor(
+    // Servicios para comunicarse con la API
     private categoryService: CategoryService,
-    private router: Router,
     private authService: AuthService,
+
+    private router: Router,
     private route: ActivatedRoute
   ) {
     addIcons({ add, menu, search, chevronForwardOutline, close, createOutline, trashOutline });
