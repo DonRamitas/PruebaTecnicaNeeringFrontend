@@ -70,11 +70,11 @@
 
         <div *ngIf="showDropdown"
              class="absolute left-0 w-full mt-1 bg-white border border-gray-400 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
-          <button class="w-full text-center py-2 hover:bg-gray-100 text-sm min-h-[30px] text-black"
+          <button class="w-full text-center py-2 text-sm min-h-[30px] text-black"
                   [ngClass]="{ 'bg-gray-200': selectedCategory === null }"
                   (click)="selectCategory(null)">Sin categoría</button>
           <button *ngFor="let cat of categories"
-                  class="w-full text-center !px-4 hover:bg-gray-100 text-sm min-h-[30px] text-black !line-clamp-2"
+                  class="w-full text-center !px-4 text-sm min-h-[30px] text-black !line-clamp-2"
                   [ngClass]="{ 'bg-gray-200': selectedCategory === cat.id }"
                   (click)="selectCategory(cat.id)">{{ cat.name }}</button>
         </div>
@@ -111,6 +111,6 @@
 </ion-content>
 
 <app-popup [title]="popupTitle" [description]="popupDescription" [buttonText]="popupButtonText"
-           [headerColor]="popupHeaderColor" [visible]="showPopup" (onConfirm)="handlePopupAction()"></app-popup>
+           [visible]="showPopup" (onConfirm)="handlePopupAction()"></app-popup>
 
 <app-loading-overlay [isLoading]="loading" class="z-300"></app-loading-overlay>

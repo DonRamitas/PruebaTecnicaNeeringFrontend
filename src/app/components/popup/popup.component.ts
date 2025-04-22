@@ -1,7 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { NgIf, NgClass } from '@angular/common';
-import { Router } from '@angular/router';
-import { IonicModule, ToastController, Platform } from '@ionic/angular';
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { closeOutline } from 'ionicons/icons';
 
@@ -10,23 +9,24 @@ import { closeOutline } from 'ionicons/icons';
   templateUrl: './popup.component.html',
   styleUrls: ['./popup.component.scss'],
   standalone: true,
-  imports: [IonicModule, NgIf, NgClass]
+  imports: [IonicModule, CommonModule]
 })
 export class PopupComponent {
+
+  constructor() {
+    addIcons({ closeOutline });
+  }
+
+  // Valores que obtiene el popup para desplegarse
   @Input() title: string = 'Error';
   @Input() description: string = 'Ha ocurrido un error.';
   @Input() buttonText: string = 'Entiendo';
-  @Input() headerColor: string = 'bg-fuchsia-700';
   @Input() visible: boolean = false;
   @Output() onConfirm = new EventEmitter<void>();
 
+  // Evento que se lanza al presionar el único botón
   handleClick() {
-    this.onConfirm.emit(); // Lanza el evento cuando se hace clic
+    this.onConfirm.emit();
   }
 
-  constructor(
-    private router:Router
-  ){
-    addIcons({closeOutline});
-  }
 }

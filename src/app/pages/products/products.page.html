@@ -35,7 +35,7 @@
     <div *ngIf="showDropdown"
     class="absolute left-0 mt-10 bg-white border border-gray-400 rounded shadow w-full z-50 text-black max-h-[1000px] overflow-y-auto">
     <button #dropdownRef *ngFor="let cat of categories"
-        class="block w-full text-center !px-10 !my-2 hover:bg-gray-100 text-sm min-h-[30px] !line-clamp-2"
+        class="block w-full text-center !px-10 !my-2 text-sm min-h-[30px] !line-clamp-2"
         [ngClass]="{ 'bg-gray-300': selectedCategory === cat.id }"
         (click)="onCategorySelect(cat.id); showDropdown=false">
     {{ cat.name }}

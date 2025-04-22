@@ -11,5 +11,7 @@ import { CommonModule } from '@angular/common';
   ]
 })
 export class LoadingOverlayComponent {
+
+  // Valor que controla si mostrar o no el cover de carga
   @Input() isLoading: boolean = false;
 }

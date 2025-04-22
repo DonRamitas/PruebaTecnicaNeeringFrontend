@@ -1,39 +1,28 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Category } from 'src/app/models/category.model';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, IonInfiniteScroll } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { add, menu, search, chevronForwardOutline, close, createOutline, trashOutline, create} from 'ionicons/icons';
+import { add, menu, search, chevronForwardOutline, close, createOutline, trashOutline, create } from 'ionicons/icons';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // Agrega si no está
 import { CategoryService } from 'src/app/services/category.service';
-import { ElementRef, HostListener, ViewChild } from '@angular/core';
 import { SidemenuComponent } from 'src/app/components/side-menu/side-menu.component';
 import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
 import { first } from 'rxjs';
-import { IonInfiniteScroll } from '@ionic/angular';
 import { ChoosePopupComponent } from 'src/app/components/choose-popup/choose-popup.component';
+import { PopupComponent } from 'src/app/components/popup/popup.component';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [IonicModule, CommonModule, RouterModule, FormsModule, SidemenuComponent, LoadingOverlayComponent, ChoosePopupComponent],
+  imports: [IonicModule, CommonModule, FormsModule, SidemenuComponent, LoadingOverlayComponent, ChoosePopupComponent, PopupComponent],
   templateUrl: './categories.page.html',
   styleUrls: ['./categories.page.scss'],
 })
 
 export class CategoriesPage {
-  @ViewChild('ionScroll') infiniteScroll!: IonInfiniteScroll;
-  categories: Category[] = [];
-  currentPage = 1;
-  hasMore = true;
-  loading = false;
-  searchTerm: string = '';
-  isSearch: boolean = false;
-  logoutLoading = false;
-  deleteLoading = false;
 
   constructor(
     private categoryService: CategoryService,
@@ -44,89 +33,70 @@ export class CategoriesPage {
     addIcons({ add, menu, search, chevronForwardOutline, close, createOutline, trashOutline });
   }
 
-  firstTime:Boolean = true;
+  // Para conectarse con el scroll infinito del html
+  @ViewChild('ionScroll') infiniteScroll!: IonInfiniteScroll;
 
+  // Almacena las categorías obtenidas desde la API
+  categories: Category[] = [];
+
+  // Contra la paginación y cargas
+  currentPage = 1;
+  hasMore = true;
+  loading = false;
+
+  // Término de búsqueda ingresado
+  searchTerm: string = '';
+
+  // Indica si el usuario buscó algo
+  isSearch: boolean = false;
+
+  // Indica si se está cargando un logout o la eliminación de una categoría
+  logoutLoading = false;
+  deleteLoading = false;
+
+  // Indica si es primera vez que se cargan las categorías
+  firstTime: Boolean = true;
+
+  // Almacena el id de la categoría seleccionada
+  selectedCategoryId: number | null = null;
+
+  // Gestiona el Side menu
+  isSideMenuOpen = false;
+
+  // Si se abre la página y es primera vez que se entra o se desea recargar, recargar la vista
   ionViewWillEnter() {
-      this.route.queryParams.pipe(first()).subscribe(params => {
-        const fromAddCategory = params['fromAddCategory'] === 'true';
-        if (fromAddCategory || this.firstTime) {
-          this.firstTime = false;
-          this.resetView();
-        }
-      });
-    }
-
-    resetView(){
-      this.categories = [];
-      this.currentPage = 1;
-      this.hasMore = true;
-      this.loading = false;
-      this.searchTerm = '';
-      this.resetInfiniteScroll();
-      this.loadCategories();
-    }
-
-    resetInfiniteScroll() {
-      if (this.infiniteScroll) {
-        this.infiniteScroll.disabled = false;
+    this.route.queryParams.pipe(first()).subscribe(params => {
+      const shouldRefresh = params['shouldRefresh'] === 'true';
+      if (shouldRefresh || this.firstTime) {
+        this.firstTime = false;
+        this.resetView();
       }
-    }
+    });
+  }
 
-    showPopup = false;
-    popupTitle = '';
-    popupDescription = '';
-    option1Text = '';
-    option2Text = '';
-    popupHeaderColor = '';
-  
-    openPopup(
-      title: string = 'Eliminar categoría',
-      description: string = '¿Estás seguro que deseas eliminar la categoría?',
-      option1Text: string = 'Volver',
-      option2Text: string = 'Eliminar',
-      headerColor: string = 'bg-fuchsia-800'
-    ) {
-      // Oculta primero por si ya estaba visible
-      this.showPopup = false;
-  
-      // Usa un pequeño timeout para esperar al siguiente ciclo de render
-      setTimeout(() => {
-        this.popupTitle = title;
-        this.popupDescription = description;
-        this.option1Text = option1Text;
-        this.option2Text = option2Text;
-        this.popupHeaderColor = headerColor;
-        this.showPopup = true;
-      }, 0);
-    }
+  // Resetea la búsqueda y carga de nuevo las categorías actualizadas
+  resetView() {
+    this.categories = [];
+    this.currentPage = 1;
+    this.hasMore = true;
+    this.loading = false;
+    this.searchTerm = '';
+    this.isSearch = false;
+    this.resetInfiniteScroll();
+    this.loadCategories();
+  }
 
-    tryDelete(id:number){
-      this.categoryId = id;
-      this.openPopup();
+  // Resetea el scroll infinito para evitar bugs
+  resetInfiniteScroll() {
+    if (this.infiniteScroll) {
+      this.infiniteScroll.disabled = false;
     }
+  }
 
-    selectOption1(){
-      this.showPopup = false;
-    }
-  
-    selectOption2(){
-      this.showPopup=false;
-      this.deleteLoading = true;
-      this.categoryService.deleteCategory(this.categoryId!).subscribe({
-        next: () => {
-          this.categories = [];
-          this.deleteLoading = false;
-          this.resetView();
-        },
-        error: () => {}//console.error('Error al cargar categoría', err)
-      });
-    }
-
-  categoryId:number | null = null;
-  
-
-  loadCategories(event?: any) {
+  // Carga las categorías desde la API y las despliega
+  async loadCategories(event?: any) {
     if (this.loading || !this.hasMore) return;
+
     this.loading = true;
 
     this.categoryService.searchCategories(this.currentPage, this.searchTerm).subscribe({
@@ -137,45 +107,103 @@ export class CategoriesPage {
         this.loading = false;
         if (event) event.target.complete();
       },
-      error: () => {
+      error: (err) => {
+        this.openSimplePopup('Error', 'No se pudieron cargar las categorías. Código: ' + err);
         this.loading = false;
         if (event) event.target.complete();
       }
     });
   }
 
-  /*loadCategories(event?: any) {
-    if (this.loading || !this.hasMore) return;
-    this.loading = true;
+  // Parámetros para gestionar el choose popup
+  showChoosePopup = false;
+  showSimplePopup = false;
+  popupTitle = '';
+  popupDescription = '';
+  option1Text = '';
+  option2Text = '';
 
-    this.categoryService.getCategories().subscribe((res) => {
-      this.categories = [ ...res];
+  // Despliega el choose popup
+  openChoosePopup(
+    title: string = 'Eliminar categoría',
+    description: string = '¿Estás seguro que deseas eliminar la categoría?',
+    option1Text: string = 'Cancelar',
+    option2Text: string = 'Sí, eliminar'
+  ) {
+    this.showChoosePopup = false;
+
+    setTimeout(() => {
+      this.popupTitle = title;
+      this.popupDescription = description;
+      this.option1Text = option1Text;
+      this.option2Text = option2Text;
+      this.showChoosePopup = true;
+    }, 0);
+  }
+
+  // Despliega el choose popup
+  openSimplePopup(
+    title: string = 'Error',
+    description: string = 'No deberías ver este mensaje',
+    option1Text: string = 'Volver',
+  ) {
+    this.showSimplePopup = false;
+
+    setTimeout(() => {
+      this.popupTitle = title;
+      this.popupDescription = description;
+      this.option1Text = option1Text;
+      this.showSimplePopup = true;
+    }, 0);
+  }
+
+  // Abre la confirmación de eliminación de la categoría
+  tryDelete(id: number) {
+    this.selectedCategoryId = id;
+    this.openChoosePopup();
+  }
+
+  // Botón cancelar
+  selectOption1() {
+    this.showChoosePopup = false;
+  }
+
+  // Botón eliminar
+  selectOption2() {
+    this.showChoosePopup = false;
+    this.deleteLoading = true;
+    this.categoryService.deleteCategory(this.selectedCategoryId!).subscribe({
+      next: () => {
+        this.deleteLoading = false;
+        this.resetView();
+      },
+      error: (err) => {
+        this.openSimplePopup('Error', 'No se pudo eliminar la categoría. Código: ' + err);
+      }
     });
-  }*/
+  }
 
+  // Botón para buscar y cargar los resultados de esa búsqueda
   resetAndSearch() {
     this.categories = [];
     this.currentPage = 1;
     this.hasMore = true;
-    if(this.searchTerm==''){
+    if (this.searchTerm == '') {
       this.isSearch = false;
-    }else{
+    } else {
       this.isSearch = true;
     }
     this.loadCategories();
   }
 
-  onSearchClick() {
-    this.resetAndSearch();
-  }
-
+  // Botón para reiniciar la búsqueda
   clearSearch() {
-    this.searchTerm = '';
-    this.resetAndSearch(); // Esto ya se encarga de cargar productos con search vacío y categoría activa
+    this.resetView();
   }
 
-  logout(){
-    this.logoutLoading =true;
+  // Método del Sidemenu, para cerrar sesión
+  logout() {
+    this.logoutLoading = true;
     this.authService.logout().subscribe(success => {
       if (success) {
         this.searchTerm = '';
@@ -183,25 +211,14 @@ export class CategoriesPage {
         this.router.navigateByUrl('/login', { replaceUrl: true });
       } else {
         this.logoutLoading = false;
-        //TODO: handlear esto, en products page igual
-        console.error('Error al cerrar sesión');
+        this.openSimplePopup('Error', 'No se pudo cerrar la sesión.');
       }
     });
-    
+
   }
 
-  isSideMenuOpen = false;
-
-  openSideMenu() {
-    this.isSideMenuOpen = true;
-    
-  }
-
-  closeSideMenu() {
-    this.isSideMenuOpen = false;
-  }
-
-  goProducts(){
+  // Botones para navegar a otras pantallas
+  goProducts() {
     this.router.navigateByUrl('/products', { replaceUrl: true });
   }
 
@@ -209,7 +226,7 @@ export class CategoriesPage {
     this.router.navigate(['/category-add']);
   }
 
-  goEditCategory(id:Number){
-    this.router.navigate(['/category-edit',id]);
+  goEditCategory(id: Number) {
+    this.router.navigate(['/category-edit', id]);
   }
 }

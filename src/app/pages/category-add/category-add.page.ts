@@ -74,7 +74,6 @@ export class CategoryAddPage {
   popupTitle = '';
   popupDescription = '';
   popupButtonText = '';
-  popupHeaderColor = '';
 
   // Define el tipo de acción que quieres ejecutar
   popupAction: () => void = () => { this.showPopup = false; }; // por defecto solo se cierra
@@ -83,13 +82,11 @@ export class CategoryAddPage {
   openErrorPopup(
     title: string = 'Atención',
     description: string = 'Algo pasó',
-    buttonText: string = 'OK',
-    headerColor: string = 'bg-fuchsia-800'
+    buttonText: string = 'OK'
   ) {
     this.popupTitle = title;
     this.popupDescription = description;
     this.popupButtonText = buttonText;
-    this.popupHeaderColor = headerColor;
     this.popupAction = () => {
       this.showPopup = false;
     };
@@ -101,17 +98,15 @@ export class CategoryAddPage {
     idProduct: number | null = null,
     title: string = 'Atención',
     description: string = 'Serás redirigido',
-    buttonText: string = 'OK',
-    headerColor: string = 'bg-fuchsia-800'
+    buttonText: string = 'OK'
   ) {
     this.popupTitle = title;
     this.popupDescription = description;
     this.popupButtonText = buttonText;
-    this.popupHeaderColor = headerColor;
     this.popupAction = () => {
       this.showPopup = false;
       this.router.navigate(['/categories'], {
-        queryParams: { fromAddCategory: true },
+        queryParams: { shouldRefresh: true },
         replaceUrl: true // Reemplaza el historial para no volver a add
       });
     };

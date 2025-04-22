@@ -1,13 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule} from '@angular/common';
-import { IonicModule, ToastController, Platform } from '@ionic/angular';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { IonicModule } from '@ionic/angular';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Storage } from '@ionic/storage-angular';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import { arrowBack, eyeOff, eye } from 'ionicons/icons';
 import { PopupComponent } from 'src/app/components/popup/popup.component';
-import { App as CapacitorApp } from '@capacitor/app';
 import { AuthService } from 'src/app/services/auth.service';
 import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/loading-overlay.component';
 
@@ -25,37 +23,24 @@ import { LoadingOverlayComponent } from 'src/app/components/loading-overlay/load
   styleUrls: ['./login.page.scss'],
 
 })
-export class LoginPage implements OnInit, OnDestroy {
-  isRegister = false;
-
-  loginForm: FormGroup;
-  registerForm: FormGroup;
-
-  backButtonSub: any;
-  lastBackPress = 0;
-  timePeriodToExit = 2000;
-
-  showPasswordLogin = false;
-  showPasswordRegister = false;
-
-  loading = false;
+export class LoginPage {
 
   constructor(
     private fb: FormBuilder,
-    private storage: Storage,
-    private toastCtrl: ToastController,
     private router: Router,
-    private platform: Platform,
     private authService: AuthService
 
   ) {
+
+    // Validadores para el formulario de inicio de sesión
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
 
+    // Validadores para el formulario de registro
     this.registerForm = this.fb.group({
-      name: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s]+$/),Validators.maxLength(30)]],
+      name: ['', [Validators.required, Validators.pattern(/^[a-zA-ZÀ-ÿ\s]+$/), Validators.maxLength(30)]],
       email: ['', [Validators.required, Validators.email, Validators.pattern(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)]],
       birthdate: ['', [Validators.required, this.birthdateValidator]],
       countryCode: ['+56', Validators.required],
@@ -67,35 +52,21 @@ export class LoginPage implements OnInit, OnDestroy {
     addIcons({ arrowBack, eyeOff, eye });
   }
 
-  ngOnInit() {
-    this.backButtonSub = this.platform.backButton.subscribeWithPriority(10, async () => {
-      if (this.isRegister) {
-        this.isRegister = false;
-      } else {
-        const now = new Date().getTime();
-        if (now - this.lastBackPress < this.timePeriodToExit) {
-          await CapacitorApp.exitApp();
-        } else {
-          this.lastBackPress = now;
-          const toast = await this.toastCtrl.create({
-            message: 'Presiona nuevamente para salir',
-            duration: 1500,
-            position: 'bottom',
-          });
-          await toast.present();
-        }
-      }
-    });
-  }
+  // Booleano que indica si es registro o login
+  isRegister = false;
 
-  ngOnDestroy() {
-    this.backButtonSub.unsubscribe();
-  }
+  // Formularios de inicio de sesión y registro
+  loginForm: FormGroup;
+  registerForm: FormGroup;
 
-  async ionViewDidEnter() {
-    await this.storage.create();
-  }
+  // Booleanos que indican si las contraseñas de los formularios se muestran
+  showPasswordLogin = false;
+  showPasswordRegister = false;
 
+  // Bool que indica si se está cargando algo
+  loading = false;
+
+  // Setea los códigos de area a Chile, el mejor país de Chile
   ionViewWillEnter() {
     this.registerForm.reset({
       prefix: '+56',
@@ -107,9 +78,13 @@ export class LoginPage implements OnInit, OnDestroy {
     });
   }
 
+  // Función para iniciar sesión
   async login() {
+
+    // Verifica si el formulario es válido
+    // (Aunque esto no puede pasar porque el botón de submit se habilita solo cuando invalid es false)
     if (this.loginForm.invalid) {
-      this.openPopup('Atención', 'Ingresa tus credenciales para acceder');
+      this.openPopup('Atención', 'Ocurrió un error imposible');
       return;
     }
 
@@ -117,18 +92,21 @@ export class LoginPage implements OnInit, OnDestroy {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
-          this.loading = false
-          this.router.navigateByUrl('/products', { replaceUrl: true })
+        this.loading = false
+        this.router.navigateByUrl('/products', { replaceUrl: true })
       },
-      error: () => {
-        this.openPopup('Atención', 'Credenciales inválidas'),
+      error: (err) => {
+        this.openPopup('Error al iniciar sesión', 'Revisa los datos ingresados e inténtalo de nuevo. Código: ' + err),
           this.loading = false
       }
     });
 
   }
 
+  // Función para registrarse
   async register() {
+
+    // Verifica la validez del formulario
     if (this.registerForm.invalid) {
       this.openPopup('Atención', 'Completa correctamente todos los campos');
       return;
@@ -136,6 +114,7 @@ export class LoginPage implements OnInit, OnDestroy {
 
     this.loading = true;
 
+    // Arma la solicitud HTTP POST con los datos del usuario
     const { name, email, birthdate, prefix, phone, password } = this.registerForm.value;
     const fullPhone = `${prefix}${phone}`;
 
@@ -147,56 +126,47 @@ export class LoginPage implements OnInit, OnDestroy {
       password
     };
 
+    // Hace la solicitud POST
     this.authService.register(body).subscribe({
       next: () => {
-        
-          this.loading = false,
+        this.loading = false,
+          // Si funcionó el POST, ir a la pantalla principal
           this.router.navigateByUrl('/products', { replaceUrl: true })
       },
-      error: () => {
-        this.openPopup('Atención', 'Bad'),
+      error: (err) => {
+        this.openPopup('Error de registro', 'Revisa los datos ingresados e inténtalo de nuevo. Código: ' + err),
           this.loading = false
       }
     });
   }
 
-  setRegisterOn() {
-    this.isRegister = true;
-  }
-
-  setRegisterOff() {
-    this.isRegister = false;
-  }
-
+  // Parámetros para gestionar el popup simple
   showPopup = false;
   popupTitle = '';
   popupDescription = '';
   popupButtonText = '';
-  popupHeaderColor = '';
 
   openPopup(
     title: string = 'Atención',
     description: string = 'Algo pasó',
-    buttonText: string = 'OK',
-    headerColor: string = 'bg-fuchsia-800'
+    buttonText: string = 'OK'
   ) {
-    // Oculta primero por si ya estaba visible
     this.showPopup = false;
 
-    // Usa un pequeño timeout para esperar al siguiente ciclo de render
     setTimeout(() => {
       this.popupTitle = title;
       this.popupDescription = description;
       this.popupButtonText = buttonText;
-      this.popupHeaderColor = headerColor;
       this.showPopup = true;
     }, 0);
   }
 
-  handlePopupAction(){
+  // La función del botón del popup es cerrarlo
+  handlePopupAction() {
     this.showPopup = false;
   }
 
+  // Validador de la fecha de nacimiento del usuario
   birthdateValidator(control: AbstractControl): ValidationErrors | null {
     const inputDate = new Date(control.value);
     const today = new Date();

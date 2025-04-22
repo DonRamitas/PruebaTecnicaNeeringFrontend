@@ -1,4 +1,5 @@
-// src/app/guards/guest.guard.ts
+// Impide que el usuario vuelva a la pantalla de login si ya está logeado
+// Lo retorna a la pantalla principal, la de productos
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 

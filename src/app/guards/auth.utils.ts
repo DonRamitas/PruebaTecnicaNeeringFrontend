@@ -1,4 +1,4 @@
-// auth.utils.ts o donde prefieras
+// Implementa JWT Decode para leer el token
 import { jwtDecode } from 'jwt-decode';
 
 interface JwtPayload {

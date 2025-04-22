@@ -6,7 +6,7 @@ import { guestGuard } from './guards/guest.guard';
 export const routes: Routes = [
   {
     path: '',
-    canActivate: [redirectGuard], // <-- redirección condicional
+    canActivate: [redirectGuard],
     loadComponent: () => import('./pages/login/login.page').then(m => m.LoginPage) // no se carga nunca gracias al guard
   },
   {
@@ -17,36 +17,43 @@ export const routes: Routes = [
   },
   {
     path: 'products',
+    canActivate: [AuthGuard],
     loadComponent: () => import('./pages/products/products.page').then(m => m.ProductsPage),
-    canActivate: [AuthGuard]  // Protege la ruta con el guard
   },
   {
     path: 'categories',
+    canActivate: [AuthGuard],
     loadComponent: () => import('./pages/categories/categories.page').then(m => m.CategoriesPage),
-    canActivate: [AuthGuard]  // Protege la ruta con el guard
+    
   },
   {
     path: 'product-add',
+    canActivate: [AuthGuard],
     loadComponent: () => import('./pages/product-add/product-add.page').then( m => m.ProductAddPage)
   },
   {
     path: 'product-detail/:id',
+    canActivate: [AuthGuard],
     loadComponent: () => import('./pages/product-detail/product-detail.page').then( m => m.ProductDetailPage)
   },
   {
     path: 'category-add',
+    canActivate: [AuthGuard],
     loadComponent: () => import('./pages/category-add/category-add.page').then( m => m.CategoryAddPage)
   },
   {
     path: 'product-edit/:id',
+    canActivate: [AuthGuard],
     loadComponent: () => import('./pages/product-edit/product-edit.page').then( m => m.ProductEditPage)
   },
   {
     path: 'category-add',
+    canActivate: [AuthGuard],
     loadComponent: () => import('./pages/category-add/category-add.page').then( m => m.CategoryAddPage)
   },
   {
     path: 'category-edit/:id',
+    canActivate: [AuthGuard],
     loadComponent: () => import('./pages/category-edit/category-edit.page').then( m => m.CategoryEditPage)
   },
   {

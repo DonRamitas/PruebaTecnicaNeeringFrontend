@@ -1,4 +1,4 @@
-// src/app/guards/redirect.guard.ts
+// Se encarga de redirigir a la pantalla principal o al login cuando se llega a una ruta inválida
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { isTokenValid } from './auth.utils';
@@ -13,6 +13,5 @@ export const redirectGuard: CanActivateFn = () => {
     router.navigate(['/login']);
   }
 
-  // Importante: devolvemos false porque no queremos activar ninguna ruta, solo redirigir
   return false;
 };

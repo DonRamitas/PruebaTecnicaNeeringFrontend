@@ -78,14 +78,12 @@ export class ProductDetailPage implements OnInit {
   popupDescription = '';
   option1Text = '';
   option2Text = '';
-  popupHeaderColor = '';
 
   openPopup(
     title: string = 'Eliminar producto',
     description: string = '¿Estás seguro que deseas eliminar el producto?',
     option1Text: string = 'Cancelar',
-    option2Text: string = 'Sí, eliminar',
-    headerColor: string = 'bg-fuchsia-800'
+    option2Text: string = 'Sí, eliminar'
   ) {
     // Oculta primero por si ya estaba visible
     this.showPopup = false;
@@ -96,7 +94,6 @@ export class ProductDetailPage implements OnInit {
       this.popupDescription = description;
       this.option1Text = option1Text;
       this.option2Text = option2Text;
-      this.popupHeaderColor = headerColor;
       this.showPopup = true;
     }, 0);
   }
