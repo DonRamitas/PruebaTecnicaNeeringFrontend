@@ -5,7 +5,7 @@ import { Product } from 'src/app/models/product.model';
 import { Category } from 'src/app/models/category.model';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { add, menu, search, chevronForwardOutline, funnel, close} from 'ionicons/icons';
+import { add, menu, search, chevronForwardOutline, funnel, close } from 'ionicons/icons';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -36,7 +36,7 @@ export class ProductsPage {
 
     private router: Router,
     private route: ActivatedRoute
-    
+
   ) {
     addIcons({ add, menu, search, chevronForwardOutline, funnel, close });
   }
@@ -45,7 +45,7 @@ export class ProductsPage {
   @ViewChild('dropdownRef') dropdownRef!: ElementRef;
   @ViewChild('filterButtonRef') filterButtonRef!: ElementRef;
   @ViewChild('ionScroll') infiniteScroll!: IonInfiniteScroll;
-  
+
   // Almacena los productos y categorías obtenidos de la API
   products: Product[] = [];
   categories: Category[] = [];
@@ -68,7 +68,7 @@ export class ProductsPage {
 
   // Indica si se está desplegando el dropdown de categorías
   showDropdown: boolean = false;
-  
+
   // Url de la API Storage
   // TODO: Cambiar esto según la API
   storagePrefix = 'http://localhost:8000/storage/';
@@ -77,7 +77,7 @@ export class ProductsPage {
   isSideMenuOpen = false;
 
   // Indica si es la primera vez que se cargan los productos y categorías
-  firstTime:boolean = true;
+  firstTime: boolean = true;
 
   // Se carga todo cuando es primera vez o está activo el flag shouldRefresh
   ionViewWillEnter() {
@@ -91,11 +91,11 @@ export class ProductsPage {
         this.isFilterActive = false;
         this.selectedCategory = null;
         this.searchTerm = '';
-        
+
         this.currentPage = 1;
         this.hasMore = true;
         this.loading = false;
-        
+
         this.resetInfiniteScroll();
         this.loadProducts();
         this.loadCategories();
@@ -117,7 +117,7 @@ export class ProductsPage {
         this.categories = [{ id: 0, name: 'Todas las categorías' }, ...res];
       },
       error: (err) => {
-        this.openPopup('Error','No se pudieron cargar las categorías');
+        this.openPopup('Error', 'No se pudieron cargar las categorías');
       }
     });
   }
@@ -128,13 +128,13 @@ export class ProductsPage {
       if (event) event.target.complete();
       return;
     }
-  
+
     this.loading = true;
-  
+
     if (!event && this.infiniteScroll) {
       this.infiniteScroll.disabled = true;
     }
-  
+
     // Petición al servicio de productos
     this.productService.searchProducts(this.currentPage, this.searchTerm, this.selectedCategory).subscribe({
       next: (res) => {
@@ -145,28 +145,28 @@ export class ProductsPage {
         } else {
           this.hasMore = false;
         }
-  
+
         if (this.infiniteScroll) {
           this.infiniteScroll.disabled = !this.hasMore;
         }
-  
+
         this.loading = false;
         if (event) event.target.complete();
       },
       error: (err) => {
-        this.openPopup('Error', 'No se pudieron cargar los productos. Código: '+err);
+        this.openPopup('Error', 'No se pudieron cargar los productos. Código: ' + err);
         this.loading = false;
         this.hasMore = false;
-  
+
         if (this.infiniteScroll) {
           this.infiniteScroll.disabled = true;
         }
-  
+
         if (event) event.target.complete();
       }
     });
   }
-  
+
   // Función para realizar la búsqueda
   resetAndSearch() {
     this.products = [];
@@ -174,13 +174,13 @@ export class ProductsPage {
     this.hasMore = true;
     this.loading = false;
     this.resetInfiniteScroll();
-    
-    if(this.searchTerm === '' && !this.selectedCategory) {
+
+    if (this.searchTerm === '' && !this.selectedCategory) {
       this.isSearch = false;
     } else {
       this.isSearch = true;
     }
-    
+
     this.loadProducts();
   }
 

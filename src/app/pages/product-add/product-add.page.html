@@ -1,39 +1,40 @@
+<!-- Página de Añadir Producto-->
+
 <ion-content class="!p-0">
-  <!-- Contenedor principal que se comporta como una columna -->
+
   <div class="flex flex-col h-full">
 
-    <!-- Header (fijo arriba si quieres, o parte del scroll) -->
-    <div class="w-full bg-gray-200 shadow px-4 py-4 h-20 flex items-center justify-center relative">
+    <!-- Header -->
+    <div class="w-full bg-gray-200 shadow px-4 py-4 h-20 flex items-center justify-center sticky relative">
       <button (click)="goBack()" class="absolute left-4 text-lg text-black">
         <ion-icon name="arrow-back"></ion-icon>
       </button>
       <h5 class="text-minititle text-black font-bold text-center">Agregar producto</h5>
     </div>
 
-    <!-- Contenido scrolleable -->
     <div class="flex-1 overflow-y-auto">
 
-      <!-- Imagen -->
+      <!-- Imagen del producto -->
       <div class="relative bg-gray-200 h-[200px] w-full flex justify-center items-center cursor-pointer overflow-hidden"
         (click)="fileInput.click()">
         <div *ngIf="!imagePreview" class="flex flex-col items-center justify-center text-center">
           <ion-icon name="cloud-upload-outline" class="text-4xl text-gray-400"></ion-icon>
           <h5 class="text-lg font-semibold text-gray-400">Subir foto</h5>
-        </div>        
+        </div>
         <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview"
           class="absolute inset-0 w-full h-full object-cover" />
         <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)">
         <button *ngIf="imagePreview" (click)="removeImage($event)"
-            class="absolute bottom-2 right-2 text-red-600 rounded-full z-10">
-      <ion-icon name="close-circle-outline" class="text-3xl"></ion-icon>
-    </button>
+          class="absolute bottom-2 right-2 text-red-600 rounded-full z-10">
+          <ion-icon name="close-circle-outline" class="text-3xl"></ion-icon>
+        </button>
       </div>
 
-      <!-- Formulario -->
+      <!-- Formulario de Agregar Producto -->
       <div class="bg-white px-6 py-6 space-y-10">
         <form [formGroup]="productAddForm" class="space-y-4">
 
-          <!-- Campo: Nombre -->
+          <!-- Nombre del producto -->
           <div>
             <label class="block text-sm text-gray-700 mb-1">Nombre del producto</label>
             <input type="text" formControlName="name"
@@ -46,7 +47,7 @@
             </div>
           </div>
 
-          <!-- Campo: Precio -->
+          <!-- Precio del producto -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
             <input type="number" formControlName="price" (keydown)="preventLeadingZero($event)"
@@ -61,7 +62,7 @@
             </div>
           </div>
 
-          <!-- Campo: Categoría -->
+          <!-- Categoría del producto -->
           <div class="relative" #dropdownRef>
             <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
             <div #dropdownTrigger
@@ -85,7 +86,7 @@
             </div>
           </div>
 
-          <!-- Campo: Descripción -->
+          <!-- Descripción del producto -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
             <textarea formControlName="description" rows="4"
@@ -102,7 +103,7 @@
       </div>
     </div>
 
-    <!-- Botón fijo -->
+    <!-- Botón para agregar el producto -->
     <div class="bg-white px-6 py-4 shadow-md">
       <button type="submit" [disabled]="productAddForm.invalid || loading" (click)="addProduct()"
         class="rounded-lg bg-fuchsia-900 text-white py-3 w-full h-12 flex items-center justify-center disabled:bg-gray-300">
@@ -115,8 +116,9 @@
   </div>
 </ion-content>
 
-<!-- Popups -->
-<app-popup [title]="popupTitle" [description]="popupDescription" [buttonText]="popupButtonText"
-  [visible]="showPopup" (onConfirm)="handlePopupAction()"></app-popup>
+<!-- Popup -->
+<app-popup [title]="popupTitle" [description]="popupDescription" [buttonText]="popupButtonText" [visible]="showPopup"
+  (onConfirm)="handlePopupAction()"></app-popup>
 
+<!-- Loading Cover -->
 <app-loading-overlay [isLoading]="loading" class="z-300"></app-loading-overlay>
