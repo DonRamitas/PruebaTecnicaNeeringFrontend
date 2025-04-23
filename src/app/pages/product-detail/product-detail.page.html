@@ -1,7 +1,7 @@
 <!-- Página de detalle del producto-->
 
 <!-- Header -->
-<div class="w-full bg-gray-200 shadow px-4 py-4 sticky top-0 z-50 h-20">
+<div class="w-full bg-gray-200 shadow px-4 sticky top-0 z-50 pt-10 pb-5">
   <div class="relative flex items-center justify-center">
 
     <button (click)="goBack()" class="absolute left-0 text-lg text-black">
@@ -26,11 +26,11 @@
 </div>
 
 <!-- Body -->
-<ion-content [fullscreen]="true">
+<ion-content>
 
   <!-- Imagen del producto (si tiene)-->
   <div *ngIf="product" class="w-full aspect-square overflow-hidden rounded-lg">
-    <img [src]="product.image ? storagePrefix + product.image : 'assets/no-image.svg'" alt="Preview"
+    <img [src]="product.image ? storagePrefix + product.image : 'assets/no-image.svg'" onerror="this.src='assets/icons/icon-512.webp';" alt="Preview"
       class="w-full h-full object-cover object-center" />
   </div>
 

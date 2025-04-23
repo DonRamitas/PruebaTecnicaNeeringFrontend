@@ -5,7 +5,7 @@
   <div class="flex flex-col h-full">
 
     <!-- Header -->
-    <div class="w-full bg-gray-200 shadow px-4 py-4 h-20 flex items-center justify-center sticky relative">
+    <div class="w-full bg-gray-200 shadow px-4 flex items-center justify-center sticky relative  pt-10 pb-5">
       <button (click)="goBack()" class="absolute left-4 text-lg text-black">
         <ion-icon name="arrow-back"></ion-icon>
       </button>
@@ -22,7 +22,7 @@
           <h5 class="text-lg font-semibold text-gray-400">Subir foto</h5>
         </div>
         <img *ngIf="imagePreview" [src]="imagePreview" alt="Preview"
-          class="absolute inset-0 w-full h-full object-cover" />
+          class="absolute inset-0 w-full h-full object-cover" onerror="this.src='assets/icons/icon-512.webp';" />
         <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)">
         <button *ngIf="imagePreview" (click)="removeImage($event)"
           class="absolute bottom-2 right-2 text-red-600 rounded-full z-10">

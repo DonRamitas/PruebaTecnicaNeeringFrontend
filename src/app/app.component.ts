@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
-
 // Dependencia que fuerza la orientación de pantalla "portrait"
 import { ScreenOrientation } from '@awesome-cordova-plugins/screen-orientation/ngx';
 
@@ -11,7 +10,8 @@ import { ScreenOrientation } from '@awesome-cordova-plugins/screen-orientation/n
 })
 
 export class AppComponent {
-  constructor(private screenOrientation: ScreenOrientation) {}
+  constructor(private screenOrientation: ScreenOrientation) {
+  }
 
   ngOnInit() {
 
@@ -19,6 +19,8 @@ export class AppComponent {
     this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
   }
 }
+
+
 
 
 

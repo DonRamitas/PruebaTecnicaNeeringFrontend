@@ -96,7 +96,7 @@ export class LoginPage {
         this.router.navigateByUrl('/products', { replaceUrl: true })
       },
       error: (err) => {
-        this.openPopup('Error al iniciar sesión', 'Revisa los datos ingresados e inténtalo de nuevo. Código: ' + err),
+        this.openPopup('Credenciales Inválidas', 'Revisa los datos ingresados e inténtalo de nuevo.'),
           this.loading = false
       }
     });
